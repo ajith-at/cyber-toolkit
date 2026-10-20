@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cyber Toolkit</title>
+  <meta name="description" content="Check an IP, domain, link, email or file hash: ownership, DNS and email security, certificates and reputation links.">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https:; object-src 'none'; base-uri 'none'; form-action 'self'">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/app.css">
+  <script src="js/theme-init.js"></script>
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to results</a>
+  <div class="shell">
+    <aside class="rail" aria-label="Tools">
+      <a class="wordmark" href="#" aria-label="Cyber Toolkit home">
+        <span class="mark" data-icon="shield-check"></span>
+        <span><strong>Cyber Toolkit</strong><small>v0.1 · keyless lookups</small></span>
+      </a>
+      <nav>
+        <p class="nav-label">Tools</p>
+        <ul id="nav" class="nav"></ul>
+      </nav>
+      <div class="rail-foot">
+        <button type="button" class="switch switch-rail" role="switch" aria-checked="false" data-theme-toggle>
+          <span class="switch-icon" data-icon="moon"></span>
+          <span class="switch-label">Dark mode</span>
+          <span class="track"><span class="knob"></span></span>
+        </button>
+      </div>
+    </aside>
+
+    <main class="main" id="main" tabindex="-1">
+      <header class="toolbar">
+        <div class="toolbar-row">
+          <a class="mobile-mark" href="#" aria-label="Cyber Toolkit home"><span class="mark" data-icon="shield-check"></span><strong>Cyber Toolkit</strong></a>
+          <div class="toolbar-title">
+            <h1 id="view-title">All tools</h1>
+            <p class="caption" id="view-caption">Runs in your browser. No accounts, no API keys.</p>
+          </div>
+          <button type="button" class="switch switch-compact" role="switch" aria-checked="false" aria-label="Dark mode" data-theme-toggle>
+            <span class="switch-icon" data-icon="moon"></span>
+            <span class="track"><span class="knob"></span></span>
+          </button>
+        </div>
+        <div class="chips" id="chips" role="tablist" aria-label="Tools"></div>
+      </header>
+
+      <div class="content">
+        <section class="hero card" aria-labelledby="hero-title">
+          <h2 id="hero-title" class="hero-title">Check an IP, domain, link, email or file hash</h2>
+          <form id="search" class="search" role="search" autocomplete="off">
+            <label class="sr-only" for="q">Indicator to check</label>
+            <input id="q" name="q" type="text" inputmode="url" spellcheck="false" autocapitalize="off"
+                   placeholder="Paste anything, e.g. 8.8.8.8, example.com, a link, an email or a SHA-256">
+            <button type="submit" class="search-go" aria-label="Check" data-icon="search"></button>
+          </form>
+          <div class="samples">
+            <span class="caption">Try</span>
+            <div id="samples" class="sample-row"></div>
+          </div>
+        </section>
+
+        <div id="results" aria-live="polite"></div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

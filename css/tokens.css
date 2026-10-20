@@ -1,0 +1,38 @@
+/* Palette tokens adapted from Ajith's "Soft Indigo Desk" style brief. Light and dark swap together. */
+:root {
+  --canvas: #c9d7f8; --shell: #eef1fb; --card: #ffffff; --soft: #f6f7fd;
+  --ink: #2a2e45; --muted: #5e6582; --faint: #8b91ab; --line: #e4e7f4;
+  --indigo: #5c4de0; --indigo-deep: #4c3fd0; --indigo-soft: #eeecfd;
+  --sidebar: #5646d6; --on-indigo: #f7f6ff; --on-primary: #f7f6ff;
+  --coral: #e8845a; --coral-soft: #fdeee7;
+  --teal: #0c7d68; --teal-soft: #e5f6f2;
+  --amber: #a56b08; --amber-bright: #e3a008; --amber-soft: #fbf4e0;
+  --rose: #c53d4e; --rose-soft: #fdecee;
+  --slate: #5e6582; --slate-soft: #eef0f7;
+  --scrim: rgba(42, 46, 69, .4);
+  --shadow: 0 0 0 1px rgba(92, 77, 224, .06), 0 8px 24px -12px rgba(42, 46, 69, .18);
+  --shadow-hover: 0 0 0 1px rgba(92, 77, 224, .10), 0 14px 32px -14px rgba(42, 46, 69, .26);
+  --toolbar-bg: rgba(238, 241, 251, .85);
+  --r-shell: 1.75rem; --r-card: 1.25rem; --r-inset: .75rem;
+  --font: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  /* Adaptation: raw indicators (IPs, hashes, DNS records, JSON) need a monospace face to be read and compared
+     character by character. It is the system mono stack, not a second web font, and is used for raw values only. */
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  color-scheme: light;
+}
+[data-theme="dark"] {
+  --canvas: #0c0e1c; --shell: #14162a; --card: #1c1f38; --soft: #17192f;
+  --ink: #f2f3fb; --muted: #b4bad4; --faint: #8e95b4; --line: #313652;
+  --indigo: #9b93f6; --indigo-deep: #7d74ee; --indigo-soft: #2a2750;
+  --sidebar: #3a3194; --on-indigo: #f7f6ff; --on-primary: #14162a; /* light indigo fill needs dark text for contrast */
+  --coral: #f0a07e; --coral-soft: #3a2a26;
+  --teal: #3dceb0; --teal-soft: #14332d;
+  --amber: #f0c14a; --amber-bright: #f0c14a; --amber-soft: #3a3118;
+  --rose: #f08390; --rose-soft: #3a2228;
+  --slate: #b4bad4; --slate-soft: #262a45;
+  --scrim: rgba(0, 0, 0, .5);
+  --shadow: 0 0 0 1px rgba(255, 255, 255, .06);
+  --shadow-hover: 0 0 0 1px rgba(255, 255, 255, .12);
+  --toolbar-bg: rgba(20, 22, 42, .85);
+  color-scheme: dark;
+}
