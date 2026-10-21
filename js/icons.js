@@ -28,6 +28,8 @@ export const ICONS = {
   "check": "<path d=\"M20 6 9 17l-5-5\"/>",
   "loader-circle": "<path d=\"M21 12a9 9 0 1 1-6.219-8.56\"/>",
   "x": "<path d=\"M18 6 6 18\"/><path d=\"m6 6 12 12\"/>",
+  "code-xml": "<path d=\"m18 16 4-4-4-4\"/><path d=\"m6 8-4 4 4 4\"/><path d=\"m14.5 4-5 16\"/>",
+  "scale": "<path d=\"M12 3v18\"/><path d=\"m19 8 3 8a5 5 0 0 1-6 0zV7\"/><path d=\"M3 7h1a17 17 0 0 0 8-2 17 17 0 0 0 8 2h1\"/><path d=\"m5 8 3 8a5 5 0 0 1-6 0zV7\"/><path d=\"M7 21h10\"/>",
 };
 
 export function icon(name, size = 18, cls = "") {

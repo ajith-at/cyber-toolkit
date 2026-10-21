@@ -1,85 +1,145 @@
 # Cyber Toolkit
 
-A modular, browser-only toolkit for quick security lookups. Paste an IP, domain, URL, email address or file hash and it works out what it is, then runs every tool that applies. No accounts, no API keys, no build step.
+**Live: https://u51.org/toolkit/**
 
-Status: **v0.1**, private, not published.
+A small, modular, open-source toolkit for quick security lookups that runs entirely in your browser. Paste an IP address, domain, URL, email address or file hash. It works out what you pasted and runs every tool that applies:
 
-## Run locally
+- **IP lookup**: owner, network range, country and abuse contact (RDAP), plus reverse DNS.
+- **Domain lookup**: registrar, created and expiry dates, domain age (flagged when under 90 days), nameservers, registry status and DNSSEC.
+- **DNS & email security**: A, AAAA, MX, NS and TXT records, with SPF and DMARC analysis and an A–F grade.
+- **Certificates**: current TLS certificates from Certificate Transparency logs, and the subdomains they reveal.
+- **Reputation**: one-click links to VirusTotal, AbuseIPDB, Shodan, URLScan, Cisco Talos, AlienVault OTX and MalwareBazaar.
+
+The smart input understands IPv4/IPv6, domains (including Unicode), URLs, emails and MD5/SHA-1/SHA-256 hashes. It also restores "defanged" indicators such as `hxxps://example[.]com`.
+
+It is a static site: plain HTML, CSS and JavaScript ES modules. There is no build step, no framework, no backend, no tracking and no API keys.
+
+## Privacy
+
+- Everything runs in your browser. There is no server of ours in the middle, no analytics and no cookies. The only thing saved locally is your light or dark mode choice (`localStorage`).
+- Lookups go **directly from your browser** to these public services:
+
+  | Service | Used for | What it receives |
+  | --- | --- | --- |
+  | [rdap.org](https://rdap.org) → the regional internet registry or domain registry it redirects to (e.g. ARIN, APNIC, RIPE, Verisign) | IP and domain registration data | The IP or domain |
+  | [Google Public DNS](https://developers.google.com/speed/public-dns/docs/doh/json) (`dns.google`), with [Cloudflare DNS](https://developers.cloudflare.com/1.1.1.1/encryption/dns-over-https/) as a fallback | DNS records, reverse DNS, SPF and DMARC | The domain, or the reverse name of the IP |
+  | [SSLMate Cert Spotter](https://sslmate.com/certspotter/api/) (`api.certspotter.com`) | Certificate Transparency | The registered domain |
+  | [Google Fonts](https://fonts.google.com) | The Plus Jakarta Sans font | A normal font request (no indicator) |
+
+- File hashes and full URLs are **not** sent anywhere unless you click a reputation link.
+- Reputation links open the third-party site in a new tab, which sends the indicator to that site. Don't paste confidential URLs or internal hostnames if that matters to you.
+- Requests are made with `referrerPolicy: no-referrer` and without credentials. A Content Security Policy limits scripts to the site itself.
+
+## Run it locally
 
 ```bash
+git clone https://github.com/ajith-at/cyber-toolkit
 cd cyber-toolkit
 python3 -m http.server 8000
 # open http://localhost:8000
 ```
 
-ES modules need a web server; opening `index.html` from disk will not work.
+Any static file server works. ES modules don't load from `file://`, so opening `index.html` directly won't work.
 
-## Tools (V1)
+## Project layout
 
-| Tool | Accepts | Data source (all CORS-enabled, keyless) |
-| --- | --- | --- |
-| Smart input | anything | Local detection of IPv4/IPv6, domain (incl. Unicode → punycode), URL, email, MD5/SHA-1/SHA-256. Re-fangs `hxxp://`, `[.]`, `[@]`. |
-| IP lookup | IP (and a URL's IP host) | RDAP via `rdap.org` (redirects to ARIN/RIPE/APNIC/LACNIC/AFRINIC); reverse DNS (PTR) via DoH. Private/reserved ranges are recognised and not looked up. |
-| Domain lookup | domain, URL host, email domain | RDAP via `rdap.org` (e.g. Verisign for .com). Age in days with amber pill under 90 days and rose under 30, expiry, registrar, nameservers, status, DNSSEC. |
-| DNS & email security | domain | DNS-over-HTTPS: `dns.google/resolve`, falling back to `cloudflare-dns.com/dns-query`. A/AAAA/MX/NS/TXT; SPF and DMARC analysis and an A–F grade. |
-| Certificates | domain | Certificate Transparency via SSLMate Cert Spotter (`api.certspotter.com/v1/issuances`), crt.sh as a deep link. |
-| Reputation | IP, domain, URL, hash | Deep links (new tab) to VirusTotal, AbuseIPDB, Shodan, URLScan, Cisco Talos, AlienVault OTX, MalwareBazaar. |
+```
+index.html          app shell (sidebar, toolbar, smart input)
+css/tokens.css      colour tokens for light and dark mode
+css/app.css         layout and components
+js/app.js           routing (#q=...&tool=...), rendering, theme switch
+js/detect.js        smart input detection and normalisation
+js/registry.js      the list of tool modules
+js/net.js           fetch with timeout and caching, DNS-over-HTTPS, RDAP helpers
+js/ui.js            safe DOM builder, cards, tables, pills, callouts
+js/icons.js         Lucide outline icons (ISC)
+modules/*.js        one file per tool
+tests/              Playwright smoke test and CORS probe
+deploy-u51.sh       maintainer script that publishes to u51.org/toolkit/
+```
 
-### CORS notes (checked Oct 2026 with headless Chrome, `tests/cors-probe.js`)
+## Adding a module
 
-- `rdap.org` → ARIN / APNIC / Verisign: OK. Do **not** URL-encode IPv6 colons (rdap.org returns 400).
-- `dns.google` and `cloudflare-dns.com` (`ct=application/dns-json`): OK.
-- `api.certspotter.com`: OK. Free tier is rate-limited per hour; lists unexpired certificates, first 100 per query.
-- `crt.sh` JSON: **failed** (HTTP 502, no CORS header, "Failed to fetch"). It is disabled (`TRY_CRTSH` in `modules/certificates.js`) and kept as a deep link.
-- Reputation sites block iframes (X-Frame-Options / frame-ancestors), so they are links, not embeds.
-- Some country-code registries (e.g. .au) do not publish RDAP; the domain tool then links to ICANN Lookup.
-
-## Adding a tool
+A tool is one file plus one line in the registry.
 
 1. Create `modules/my-tool.js`:
 
 ```js
-import { factCard, factGrid } from '../js/ui.js';
+import { factCard, factGrid, detailsTable, mono } from '../js/ui.js';
+import { fetchJson } from '../js/net.js';
+
 export default {
-  id: 'my-tool', name: 'My tool', icon: 'hash',      // icon = key in js/icons.js (Lucide)
-  accepts: ['domain'],                                 // 'ip' | 'domain' | 'url' | 'hash'
-  summary: 'One line for the home screen.',
+  id: 'my-tool',                 // unique slug, used in the URL: #q=example.com&tool=my-tool
+  name: 'My tool',               // sidebar label
+  icon: 'hash',                  // a key in js/icons.js (Lucide outline icon)
+  accepts: ['domain'],           // any of 'ip' | 'domain' | 'url' | 'hash'
+  summary: 'One line shown on the home screen.',
   source: 'Where the data comes from',
+
   async render(q, { body, setStatus }) {
-    setStatus('low', 'Looks fine');                    // 'low' | 'unknown' | 'caution' | 'high'
-    body.append(factGrid(factCard({ label: 'Thing', figure: 42 })));
+    // q = { type, value, display, ip?, domain?, url?, email?, hashType?, refanged }
+    const data = await fetchJson(`https://api.example.org/lookup/${encodeURIComponent(q.domain)}`);
+    setStatus('low', 'Looks fine');            // 'low' | 'unknown' | 'caution' | 'high'
+    body.append(
+      factGrid(factCard({ label: 'Score', figure: data.score, status: 'low' })),
+      detailsTable('Details', [['Domain', mono(q.domain)], ['Score', String(data.score)]]),
+    );
   },
 };
 ```
 
-2. Add one import and one entry in `js/registry.js`.
+2. Register it in `js/registry.js`:
 
-`q` is the parsed input: `{ type, value, ip?, domain?, url?, email?, hashType? }`. Use helpers in `js/ui.js` (safe DOM builder, cards, tables, pills, callouts) and `js/net.js` (`fetchJson` with timeout and caching, `doh`, `rdap`). Never use `innerHTML` with external data.
+```js
+import myTool from '../modules/my-tool.js';
+export const MODULES = [ /* ...existing */ myTool ];
+```
+
+**How routing works:** a URL also provides its host's `ip` or `domain`, and an email provides its `domain`. A module runs when any of its `accepts` values is present in the parsed input.
+
+**Module rules:**
+
+- Use the endpoints of keyless services that send `Access-Control-Allow-Origin` headers. Check them with `tests/cors-probe.js`.
+- Never put an API key in the code. Keyed services belong in a future backend proxy.
+- Build DOM with the helpers in `js/ui.js`, which use `textContent`. Never pass external data to `innerHTML`.
+- Handle failure: catch errors, call `setStatus('unknown', ...)` and show `errorCallout(...)` with a link to the provider's website. A thrown error is caught by the app, but a helpful message is better.
+- Status colours mean risk: teal = low, slate = unknown, amber = caution, rose = high risk.
 
 ## Style
 
-Adapted from Ajith's **Soft Indigo Desk** brief: periwinkle canvas, rounded shell, indigo sidebar rail, white cards with soft shadows, pill controls, Plus Jakarta Sans, tabular numerals, Lucide outline icons, persisted dark mode switch at the bottom of the rail (compact in the toolbar on mobile), reduced-motion support.
-
-Adaptations for a security tool:
-
-- **Status colours mean risk**: teal = low/clean, slate = unknown/no score, amber = caution (domain under 90 days, missing DMARC, `p=none`, `?all`), rose = high risk (domain under 30 days, `+all`, suspended or expired domain).
-- **Sidebar items are tool modules**; on mobile they become a chip row. The hero search pill is the smart input.
-- **Monospace for raw values only** (IPs, hashes, DNS records, JSON) so they can be compared character by character. It uses the system mono stack, not a second web font.
-- In dark mode, text on the light indigo fill is dark (`--on-primary`) for contrast.
-- Market-direction colours (indigo up / coral down) and charts are not used yet.
+The visual style is adapted from the "Soft Indigo Desk" dashboard brief. It uses a periwinkle canvas and a rounded shell, an indigo sidebar, white cards with soft shadows and pill controls. Text is set in Plus Jakarta Sans with tabular numerals, and icons are Lucide outlines. Light and dark tokens swap together, and the layout respects reduced-motion settings. Monospace is used only for raw values (IPs, hashes, DNS records, JSON).
 
 ## Tests
 
 ```bash
-npm i playwright            # anywhere; point NODE_PATH at it
+npm i playwright                  # any folder; point NODE_PATH at its node_modules
 python3 -m http.server 8811 &
-node tests/smoke.js --shots   # all sample lookups, bad input, tool filter, dark mode, mobile; no console errors
-node tests/cors-probe.js      # each data source fetched from a browser page
+node tests/smoke.js               # or: node tests/smoke.js https://u51.org/toolkit/
+node tests/smoke.js --shots       # also writes screenshots/
+node tests/cors-probe.js          # fetches every data source from a browser page
 ```
 
-Uses the system Chrome (`PW_CHANNEL=chrome`). Screenshots go to `screenshots/`.
+The tests use the installed Chrome (`PW_CHANNEL=chrome` by default; set `PW_CHANNEL=chromium` to use Playwright's own build). The smoke test covers sample IPs, domains, a URL, an email, a hash, defanged input, a private IP, bad input, the tool filter, dark mode and a mobile viewport. It fails on any console error.
+
+## Known limits
+
+- The `crt.sh` JSON API was unreachable from browsers (HTTP 502 without CORS) when this was built, so certificates come from Cert Spotter. Cert Spotter has a free hourly limit and lists unexpired certificates only (the first 100). crt.sh stays as a link (set `TRY_CRTSH` in `modules/certificates.js` to try it again).
+- Some country-code registries (for example `.au`) don't publish RDAP. The domain tool then links to ICANN Lookup.
+- Registrable domains are guessed without the full Public Suffix List.
+- There are no reputation scores yet, only links (see the roadmap).
 
 ## Roadmap
 
-- **V2**: live reputation scores (AbuseIPDB, VirusTotal, etc.) combined into one risk score, through a small private backend (e.g. a Cloudflare Worker) so API keys never reach the browser.
-- **Later**: email header analyser, breach check via k-anonymity (HIBP range API), hash and Base64 tools, password strength meter, CVE / vulnerability feed.
+- Live reputation scores (AbuseIPDB, VirusTotal and others) combined into one risk score, through a small optional backend (e.g. a Cloudflare Worker) so API keys never reach the browser.
+- Email header analyser.
+- Breach check via k-anonymity (only a hash prefix leaves the browser).
+- Hash and Base64 tools, and a password strength meter.
+- CVE / vulnerability feed.
+
+## Contributing and security
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). To report a vulnerability, see [SECURITY.md](SECURITY.md).
+
+## Licence
+
+[MIT](LICENSE) © 2026 Ajith Thamarakshan. Icons from [Lucide](https://lucide.dev) (ISC).
