@@ -39,7 +39,7 @@ export default {
   icon: 'file-badge',
   accepts: ['domain'],
   summary: 'TLS certificates from public Certificate Transparency logs, and the subdomains they reveal.',
-  source: 'Certificate Transparency via SSLMate Cert Spotter · crt.sh deep link',
+  source: 'Certificate Transparency logs via Cert Spotter',
 
   async render(q, { body, setStatus }) {
     const domain = guessRegistrable(q.domain);

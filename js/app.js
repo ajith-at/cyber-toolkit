@@ -51,7 +51,7 @@ function markActive() {
   });
   const v = views.find((x) => x.id === state.tool) || views[0];
   $('#view-title').textContent = v.name;
-  $('#view-caption').textContent = v.id === 'all' ? 'Runs in your browser. No accounts, no API keys.' : v.summary;
+  $('#view-caption').textContent = v.id === 'all' ? '' : v.summary;
 }
 
 // ---------- routing via the URL hash: #q=<value>&tool=<id> ----------
@@ -167,8 +167,7 @@ function home() {
     el('div', { class: 'tool-grid' }, MODULES.map((m) => el('article', { class: 'card tool-card' },
       el('div', { class: 'tool-top' }, el('span', { class: 'module-icon' }, iconEl(m.icon, 20)), el('h3', {}, m.name)),
       el('p', { class: 'caption' }, m.summary),
-      el('div', { class: 'pill-row' }, m.accepts.map((a) => el('span', { class: 'chip-static' }, { ip: 'IP', domain: 'Domain', url: 'URL', hash: 'Hash' }[a])))))),
-    el('p', { class: 'note' }, 'More tools are planned: email header analyser, breach check, hash and Base64 tools, password strength and a vulnerability feed.'));
+      el('div', { class: 'pill-row' }, m.accepts.map((a) => el('span', { class: 'chip-static' }, { ip: 'IP', domain: 'Domain', url: 'URL', hash: 'Hash' }[a])))))));
 }
 
 // ---------- boot ----------

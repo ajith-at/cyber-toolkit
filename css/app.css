@@ -16,6 +16,7 @@ button, [role="button"], summary { cursor: pointer; }
 .mono { font-family: var(--mono); font-size: .8125rem; overflow-wrap: anywhere; font-variant-numeric: normal; }
 .muted { color: var(--muted); }
 .caption { color: var(--muted); font-size: .75rem; }
+.caption:empty { display: none; }
 .label { color: var(--muted); font-weight: 600; font-size: .8125rem; }
 .note { color: var(--muted); font-size: .75rem; padding: 0 .25rem; }
 

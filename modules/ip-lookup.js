@@ -43,8 +43,8 @@ export default {
     const org = reg.org || reg.name || d.name || '—';
     const country = d.country || reg.country || null;
 
-    // There is no reputation score without an API key (planned for V2), so status stays "Unknown" unless something stands out.
-    setStatus('unknown', 'No score (V1)');
+    // No reputation score is available without an API key (see issue #6), so the status stays "Unknown".
+    setStatus('unknown', 'Not scored');
 
     body.append(factGrid(
       factCard({ label: 'Owner', figure: org, small: true, caption: d.name && d.name !== org ? `Network name ${d.name}` : (registrant?.handle ? `Handle ${registrant.handle}` : null) }),

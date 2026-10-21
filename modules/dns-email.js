@@ -67,7 +67,7 @@ export default {
   name: 'DNS & email security',
   icon: 'mail-check',
   accepts: ['domain'],
-  summary: 'A, AAAA, MX, NS and TXT records, with a simple SPF and DMARC grade for email spoofing protection.',
+  summary: 'A, AAAA, MX, NS and TXT records, plus an SPF and DMARC grade for spoofing protection.',
   source: 'DNS-over-HTTPS (Google Public DNS, Cloudflare fallback)',
 
   async render(q, { body, setStatus }) {

@@ -19,7 +19,7 @@ export function fetchJson(url, { timeout = 15000, headers = {}, cacheable = true
       res = await fetch(url, { headers, signal: ctl.signal, referrerPolicy: 'no-referrer', credentials: 'omit' });
     } catch (e) {
       if (e.name === 'AbortError') throw new NetError('timeout', 'The service took too long to answer.');
-      throw new NetError('network', 'The service could not be reached from the browser (offline, blocked, or no CORS).');
+      throw new NetError('network', 'The service could not be reached. Check your connection or try again later.');
     } finally { clearTimeout(t); }
     if (!res.ok) throw new NetError('http', `The service answered with HTTP ${res.status}.`, res.status);
     try { return await res.json(); } catch { throw new NetError('parse', 'The service sent something that was not JSON.'); }

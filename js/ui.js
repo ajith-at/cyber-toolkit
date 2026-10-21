@@ -24,7 +24,7 @@ function append(n, children) {
 export const iconEl = (name, size = 18, cls = '') => el('span', { class: 'icon-wrap', html: icon(name, size, cls) });
 
 // ---------- status ----------
-// Risk mapping of the template's status colours.
+// Status colours mapped to risk levels.
 export const STATUS = {
   low: { cls: 'teal', word: 'Low risk' },
   unknown: { cls: 'slate', word: 'Unknown' },

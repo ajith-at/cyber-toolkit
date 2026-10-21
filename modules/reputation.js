@@ -1,4 +1,4 @@
-// Reputation panel: one-click deep links to well-known threat-intel services. No API keys, opens in a new tab.
+// Reputation panel: one-click links to well-known threat-intel services, opened in a new tab.
 // Most of these sites refuse to be embedded (X-Frame-Options / CSP frame-ancestors), so links are used instead of iframes.
 import { el, iconEl, mono, extLink } from '../js/ui.js';
 
@@ -62,7 +62,7 @@ export default {
   icon: 'radar',
   accepts: ['ip', 'domain', 'url', 'hash'],
   summary: 'One-click checks on VirusTotal, AbuseIPDB, Shodan, URLScan, Cisco Talos and AlienVault OTX.',
-  source: 'Deep links, opened in a new tab. Live scores need API keys (planned for V2).',
+  source: 'Links open in a new tab',
 
   async render(q, { body, setStatus }) {
     setStatus('unknown', 'Check externally');

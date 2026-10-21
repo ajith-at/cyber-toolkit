@@ -1,4 +1,4 @@
-/* Palette tokens adapted from Ajith's "Soft Indigo Desk" style brief. Light and dark swap together. */
+/* Colour tokens. Light and dark themes swap the whole set together. */
 :root {
   --canvas: #c9d7f8; --shell: #eef1fb; --card: #ffffff; --soft: #f6f7fd;
   --ink: #2a2e45; --muted: #5e6582; --faint: #8b91ab; --line: #e4e7f4;
@@ -15,8 +15,8 @@
   --toolbar-bg: rgba(238, 241, 251, .85);
   --r-shell: 1.75rem; --r-card: 1.25rem; --r-inset: .75rem;
   --font: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
-  /* Adaptation: raw indicators (IPs, hashes, DNS records, JSON) need a monospace face to be read and compared
-     character by character. It is the system mono stack, not a second web font, and is used for raw values only. */
+  /* Monospace is for raw values only (IPs, hashes, DNS records, JSON) so they can be compared character by
+     character. System mono stack, no extra web font. */
   --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
   color-scheme: light;
 }

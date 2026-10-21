@@ -10,14 +10,14 @@ export default {
   icon: 'globe',
   accepts: ['domain'],
   summary: 'Registrar, created and expiry dates, domain age, nameservers and registry status (RDAP).',
-  source: 'RDAP via rdap.org (registry servers, e.g. Verisign for .com)',
+  source: 'RDAP via rdap.org',
 
   async render(q, { body, setStatus }) {
     let res;
     try { res = await rdapDomain(q.domain); } catch (e) {
       setStatus('unknown', 'Unavailable');
       const msg = e.kind === 'http' && e.status === 404
-        ? 'No RDAP record was found. The domain may not exist, or its registry (some country-code domains such as .au) does not publish RDAP yet.'
+        ? 'No RDAP record was found. The domain may not exist, or its registry does not publish RDAP (for example .de).'
         : e.message;
       body.append(errorCallout({ message: msg }, `https://lookup.icann.org/en/lookup?name=${encodeURIComponent(q.domain)}`, 'Look it up on ICANN Lookup'));
       return;
