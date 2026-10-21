@@ -124,7 +124,7 @@ The tests use the installed Chrome (`PW_CHANNEL=chrome` by default; set `PW_CHAN
 ## Known limits
 
 - The `crt.sh` JSON API was unreachable from browsers (HTTP 502 without CORS) when this was built, so certificates come from Cert Spotter. Cert Spotter has a free hourly limit and lists unexpired certificates only (the first 100). crt.sh stays as a link (set `TRY_CRTSH` in `modules/certificates.js` to try it again).
-- Some country-code registries (for example `.au`) don't publish RDAP. The domain tool then links to ICANN Lookup.
+- Some country-code registries (for example `.de`) don't publish RDAP. The domain tool then links to ICANN Lookup ([#9](https://github.com/ajith-at/cyber-toolkit/issues/9)).
 - Registrable domains are guessed without the full Public Suffix List.
 - There are no reputation scores yet, only links (see the roadmap).
 
@@ -135,6 +135,17 @@ The tests use the installed Chrome (`PW_CHANNEL=chrome` by default; set `PW_CHAN
 - Breach check via k-anonymity (only a hash prefix leaves the browser).
 - Hash and Base64 tools, and a password strength meter.
 - CVE / vulnerability feed.
+
+## Backlog
+
+Planned work, known limits and ideas are tracked as [GitHub Issues](https://github.com/ajith-at/cyber-toolkit/issues):
+
+- [High priority](https://github.com/ajith-at/cyber-toolkit/issues?q=is%3Aopen+label%3Apriority%3Ahigh)
+- [New modules](https://github.com/ajith-at/cyber-toolkit/issues?q=is%3Aopen+label%3Anew-module)
+- [Good first issues](https://github.com/ajith-at/cyber-toolkit/issues?q=is%3Aopen+label%3A%22good+first+issue%22)
+- [Ideas that need investigation](https://github.com/ajith-at/cyber-toolkit/issues?q=is%3Aopen+label%3Aidea)
+
+Have a feature request or found a bug? [Open an issue](https://github.com/ajith-at/cyber-toolkit/issues/new).
 
 ## Contributing and security
 
