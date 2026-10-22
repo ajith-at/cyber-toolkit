@@ -94,7 +94,7 @@ function render() {
 
   const mods = modulesFor(q);
   const shown = state.tool === 'all' ? mods : mods.filter((m) => m.id === state.tool);
-  const overview = summaryCard(q, mods);
+  const overview = summaryCard(q, mods, shown);
   out.append(overview.node);
 
   if (state.tool !== 'all' && !shown.length) {
@@ -107,8 +107,11 @@ function render() {
   overview.update();
 }
 
-function summaryCard(q, mods) {
+// The status covers the tools on screen: every applicable tool, or only the selected one when a tool filter is set.
+function summaryCard(q, mods, shown = mods) {
+  const filtered = state.tool !== 'all';
   const statusSlot = el('span', {}, pill('unknown', 'Checking…'));
+  const statusLabel = filtered ? (MODULES.find((m) => m.id === state.tool)?.name || 'Status') : 'Overall';
   const node = el('section', { class: 'card summary', 'aria-label': 'Input summary' },
     el('div', { class: 'summary-main' },
       el('div', { class: 'summary-id' },
@@ -117,11 +120,12 @@ function summaryCard(q, mods) {
         q.hashType ? el('p', { class: 'caption' }, `${q.hashType} hash`) : null,
         q.type === 'url' || q.type === 'email' ? el('p', { class: 'caption' }, 'Checking host ', mono(q.ip || q.domain)) : null,
         q.refanged ? el('p', { class: 'caption' }, 'Defanged input was restored (hxxp, [.] and similar).') : null),
-      el('div', { class: 'summary-status' }, el('span', { class: 'label' }, 'Overall'), statusSlot)),
+      el('div', { class: 'summary-status' }, el('span', { class: 'label' }, statusLabel), statusSlot)),
     el('div', { class: 'summary-tools' }, mods.map((m) => el('a', { href: `#${new URLSearchParams({ q: state.raw, ...(m.id === 'all' ? {} : { tool: m.id }) })}`, class: 'chip chip-soft' }, iconEl(m.icon, 14), m.name))));
   const update = () => {
-    const done = mods.map((m) => sectionCache.get(`${q.value}|${m.id}`)).filter((c) => c && c.status);
-    if (done.length < mods.length) { statusSlot.replaceChildren(pill('unknown', `Checking ${done.length}/${mods.length}`)); return; }
+    if (!shown.length) { statusSlot.replaceChildren(pill('unknown', 'Not checked')); return; }
+    const done = shown.map((m) => sectionCache.get(`${q.value}|${m.id}`)).filter((c) => c && c.status);
+    if (done.length < shown.length) { statusSlot.replaceChildren(pill('unknown', filtered ? 'Checking…' : `Checking ${done.length}/${shown.length}`)); return; }
     const scored = done.map((c) => c.status).filter((s) => s !== 'unknown');
     const w = scored.length ? worst(...scored) : 'unknown';
     statusSlot.replaceChildren(pill(w, w === 'low' ? 'No red flags' : undefined));
