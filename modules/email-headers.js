@@ -164,6 +164,7 @@ export function fmtDelay(sec) {
   const m = Math.floor(s / 60); s -= m * 60;
   return `${sign}${h ? `${h} h ` : ''}${m} min${!h && s ? ` ${s} s` : ''}`;
 }
+const cap = (w) => w.charAt(0).toUpperCase() + w.slice(1);
 const fmtUtc = (d) => (d ? d.toISOString().replace('T', ' ').replace(/\.\d+Z$/, ' UTC') : null);
 
 const SAMPLE = `Received: by 2002:a05:6214:1c8a::1 with SMTP id gc10csp22; Wed, 21 Oct 2026 09:41:52 -0700 (PDT)
@@ -206,7 +207,7 @@ function renderResult(a, go) {
     const st = resultStatus(r);
     const detail = { spf: a.auth.props['spf.smtp.mailfrom'], dkim: a.auth.props['dkim.header.d'] || a.auth.props['dkim.header.i'], dmarc: a.auth.props['dmarc.header.from'] }[k];
     return el('article', { class: 'card fact', 'data-auth': k },
-      el('div', { class: 'fact-top' }, el('span', { class: 'label' }, label), pill(st, r ? r.toUpperCase().replace(/^(.)(.*)$/, (x, f, rest) => f + rest.toLowerCase()) : 'None')),
+      el('div', { class: 'fact-top' }, el('span', { class: 'label' }, label), pill(st, r ? cap(r) : 'None')),
       el('p', { class: 'caption' }, detail ? mono(detail) : (k === 'dkim' && a.auth.dkimSigned ? 'Signed, but no verification result in the headers.' : 'No result in the headers.')));
   };
   nodes.push(el('div', { class: 'fact-grid' }, authCard('spf', 'SPF'), authCard('dkim', 'DKIM'), authCard('dmarc', 'DMARC')));
@@ -238,11 +239,13 @@ function renderResult(a, go) {
     ...a.ips.map((ip) => ({ kind: ip === a.origin ? 'Originating IP' : 'IP', value: mono(ip), actions: el('div', { class: 'row-actions' }, btn('IP lookup', 'server', ip, 'ip-lookup'), btn('Reputation', 'radar', ip, 'reputation')) })),
     ...a.domains.map((d) => ({ kind: 'Domain', value: mono(d), actions: el('div', { class: 'row-actions' }, btn('Domain lookup', 'globe', d, 'domain-lookup'), btn('DNS & email', 'mail-check', d, 'dns-email'), btn('Reputation', 'radar', d, 'reputation')) })),
   ];
-  nodes.push(listTable('IPs and domains', [{ key: 'kind', label: 'Type' }, { key: 'value', label: 'Value' }, { key: 'actions', label: 'Check', num: true }], indRows));
+  const ind = listTable('IPs and domains', [{ key: 'kind', label: 'Type' }, { key: 'value', label: 'Value' }, { key: 'actions', label: 'Check', num: true }], indRows);
+  ind.querySelector('table').classList.add('ind-table');
+  nodes.push(ind);
 
   if (a.arc.length) {
     nodes.push(listTable('ARC results from earlier hops', [{ key: 'server', label: 'Server' }, { key: 'spf', label: 'SPF' }, { key: 'dkim', label: 'DKIM' }, { key: 'dmarc', label: 'DMARC' }],
-      a.arc.map((r) => ({ server: r.server ? mono(r.server) : null, spf: r.spf ? pill(resultStatus(r.spf), r.spf) : null, dkim: r.dkim ? pill(resultStatus(r.dkim), r.dkim) : null, dmarc: r.dmarc ? pill(resultStatus(r.dmarc), r.dmarc) : null }))));
+      a.arc.map((r) => ({ server: r.server ? mono(r.server) : null, spf: r.spf ? pill(resultStatus(r.spf), cap(r.spf)) : null, dkim: r.dkim ? pill(resultStatus(r.dkim), cap(r.dkim)) : null, dmarc: r.dmarc ? pill(resultStatus(r.dmarc), cap(r.dmarc)) : null }))));
   }
   return { status: v, nodes };
 }

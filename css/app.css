@@ -259,6 +259,12 @@ label.card-title { display: block; }
   .hash-table td { border: 0; padding: 0; }
   .row-actions { text-align: left; white-space: normal; display: flex; flex-wrap: wrap; gap: .375rem; }
   .row-actions .btn + .btn { margin-left: 0; }
+  .ind-table { min-width: 0; }
+  .ind-table thead { display: none; }
+  .ind-table tr { display: grid; grid-template-columns: auto 1fr; gap: .25rem .75rem; padding: .625rem 0; border-bottom: 1px solid var(--line); }
+  .ind-table tr:last-child { border-bottom: 0; }
+  .ind-table td { border: 0; padding: 0; }
+  .ind-table td:last-child { grid-column: 1 / -1; text-align: left; }
 }
 
 @media (prefers-reduced-motion: reduce) {
