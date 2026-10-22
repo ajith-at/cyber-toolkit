@@ -110,3 +110,36 @@ export function errorCallout(err, fallbackHref, fallbackText) {
   const msg = err?.message || 'Something went wrong.';
   return callout('unknown', 'Lookup unavailable', msg, fallbackHref ? el('p', { class: 'caption' }, extLink(fallbackHref, fallbackText || 'Open the lookup on the provider site')) : null);
 }
+
+// ---------- copy to clipboard ----------
+let live;
+/** Polite screen-reader announcement (one shared live region). */
+export function announce(text) {
+  if (!live) { live = el('div', { class: 'sr-only', 'aria-live': 'polite', role: 'status' }); document.body.append(live); }
+  live.textContent = '';
+  setTimeout(() => { live.textContent = text; }, 50);
+}
+
+async function writeClipboard(text) {
+  try { await navigator.clipboard.writeText(text); return true; } catch { /* fall back below */ }
+  const t = el('textarea', { class: 'sr-only', readonly: true });
+  t.value = text;
+  document.body.append(t);
+  t.select();
+  let ok = false;
+  try { ok = document.execCommand('copy'); } catch { ok = false; }
+  t.remove();
+  return ok;
+}
+
+/** Button that copies getText() and announces the result. label is used for the accessible name. */
+export function copyButton(getText, label = 'Copy') {
+  const text = el('span', {}, 'Copy');
+  const b = el('button', { type: 'button', class: 'btn btn-secondary btn-sm', 'aria-label': label, onclick: async () => {
+    const ok = await writeClipboard(getText());
+    text.textContent = ok ? 'Copied' : 'Copy failed';
+    announce(ok ? 'Copied to clipboard' : 'Could not copy. Select the text and copy it manually.');
+    setTimeout(() => { text.textContent = 'Copy'; }, 1600);
+  } }, iconEl('copy', 16), text);
+  return b;
+}
