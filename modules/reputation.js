@@ -1,10 +1,19 @@
 // Reputation panel: one-click links to well-known threat-intel services, opened in a new tab.
 // Most of these sites refuse to be embedded (X-Frame-Options / CSP frame-ancestors), so links are used instead of iframes.
 import { el, iconEl, mono, extLink } from '../js/ui.js';
+import { guessRegistrable } from '../js/net.js';
+
+// Link formats checked on 22 Oct 2026 by loading each link in headless Chrome, plus the provider's own pages (#10):
+//   VirusTotal  ip, domain, file, url (double-encoded search redirects to /gui/url/<id>)        works
+//   AbuseIPDB   /check/<ip|domain>: a domain resolves to its IP's report                            works (bot check blocks scripts; page content confirmed)
+//   Talos       reputation_center/lookup?search=<ip|domain>, talos_file_reputation?s=<sha256>       works
+//   URLScan     search/#page.ip:"..." and page.url:"..." work; /domain/<d> now needs a login, so domains use page.domain:"..."
+//   Shodan      /host/<ip> works; hostname: search filters need a login, so domains use /domain/<registrable domain>
+//   OTX, MalwareBazaar  not confirmed: both answered automated browsers with a bot check or error page
 
 const e = encodeURIComponent;
 
-const PROVIDERS = [
+export const PROVIDERS = [
   {
     name: 'VirusTotal', what: 'Verdicts from 70+ antivirus and URL scanners.',
     ip: (v) => `https://www.virustotal.com/gui/ip-address/${e(v)}`,
@@ -18,14 +27,14 @@ const PROVIDERS = [
     domain: (v) => `https://www.abuseipdb.com/check/${e(v)}`,
   },
   {
-    name: 'Shodan', what: 'Open ports, services and banners seen on the host.',
+    name: 'Shodan', what: 'Open ports and services on a host, or DNS records for a domain.',
     ip: (v) => `https://www.shodan.io/host/${e(v)}`,
-    domain: (v) => `https://www.shodan.io/search?query=${e(`hostname:${v}`)}`,
+    domain: (v) => `https://www.shodan.io/domain/${e(guessRegistrable(v))}`,
   },
   {
     name: 'URLScan', what: 'Screenshots and page behaviour from past scans.',
     ip: (v) => `https://urlscan.io/search/#${e(`page.ip:"${v}"`)}`,
-    domain: (v) => `https://urlscan.io/domain/${e(v)}`,
+    domain: (v) => `https://urlscan.io/search/#${e(`page.domain:"${v}"`)}`,
     url: (v) => `https://urlscan.io/search/#${e(`page.url:"${v}"`)}`,
   },
   {

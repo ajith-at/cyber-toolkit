@@ -128,6 +128,7 @@ node tests/smoke.js --shots       # also writes screenshots/
 node tests/encoding.js            # Hash & encode: known-answer tests, UI and no-network check
 node tests/email-headers.js       # Email headers: Gmail, Microsoft 365 and spoofed samples (tests/fixtures/)
 node tests/cors-probe.js          # fetches every data source from a browser page
+node tests/reputation-links.js    # reputation link formats (offline)
 ```
 
 The tests use the installed Chrome (`PW_CHANNEL=chrome` by default; set `PW_CHANNEL=chromium` to use Playwright's own build). The smoke test covers sample IPs, domains, a URL, an email, a hash, defanged input, a private IP, bad input, the tool filter, dark mode and a mobile viewport. It fails on any console error.
