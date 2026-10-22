@@ -124,6 +124,10 @@ const BAD = ['hello world', '256.1.1.1', 'abc123', 'javascript:alert(1)', '<img 
   await d.page.goto(`${BASE}#q=example.com&tool=domain-lookup`);
   await d.page.waitForFunction(() => document.querySelector('#mod-domain-lookup')?.getAttribute('aria-busy') === 'false', null, { timeout: 30000 });
   if ((await d.page.$$('section.module')).length !== 1) fail('tool filter should show one module');
+  // The summary status covers only the selected tool, so it must finish (issue #27).
+  try {
+    await d.page.waitForFunction(() => !/Checking/.test(document.querySelector('.summary-status .pill')?.textContent || 'Checking'), null, { timeout: 10000 });
+  } catch { fail(`tool filter: summary status stuck on "${await d.page.textContent('.summary-status .pill')}"`); }
   console.log('ok: tool filter');
 
   // ---- dark mode toggle persists ----
