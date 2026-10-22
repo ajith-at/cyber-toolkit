@@ -20,6 +20,7 @@ import dnsEmail from '../modules/dns-email.js';
 import certificates from '../modules/certificates.js';
 import reputation from '../modules/reputation.js';
 import encoding from '../modules/encoding.js';
+import emailHeaders from '../modules/email-headers.js';
 
 export const MODULES = [
   ipLookup,
@@ -27,6 +28,7 @@ export const MODULES = [
   dnsEmail,
   certificates,
   reputation,
+  emailHeaders,
   encoding,
 ];
 

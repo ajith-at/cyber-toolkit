@@ -1,0 +1,51 @@
+Received: from SY4P282MB1234.AUSP282.PROD.OUTLOOK.COM (2603:10c6:10:1a2::9) by
+ ME3P282MB5678.AUSP282.PROD.OUTLOOK.COM with HTTPS; Wed, 21 Oct 2026 02:30:12
+ +0000
+Received: from SY5P300CA0012.AUSP300.PROD.OUTLOOK.COM (2603:10c6:10:256::15)
+ by SY4P282MB1234.AUSP282.PROD.OUTLOOK.COM (2603:10c6:10:1a2::9) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8093.21; Wed, 21 Oct
+ 2026 02:30:11 +0000
+Received: from SY1PEPF00001234.ausp300.prod.outlook.com
+ (2603:10c6:10:256:cafe::7b) by SY5P300CA0012.outlook.office365.com
+ (2603:10c6:10:256::15) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.8093.21 via Frontend Transport; Wed,
+ 21 Oct 2026 02:30:11 +0000
+Authentication-Results: spf=pass (sender IP is 40.107.215.88)
+ smtp.mailfrom=contoso.com.au; dkim=pass (signature was verified)
+ header.d=contoso.com.au;dmarc=pass action=none
+ header.from=contoso.com.au;compauth=pass reason=100
+Received-SPF: Pass (protection.outlook.com: domain of contoso.com.au designates
+ 40.107.215.88 as permitted sender) receiver=protection.outlook.com;
+ client-ip=40.107.215.88; helo=SEYPR02CU001.outbound.protection.outlook.com;
+ pr=C
+Received: from SEYPR02CU001.outbound.protection.outlook.com (40.107.215.88) by
+ SY1PEPF00001234.mail.protection.outlook.com (10.167.241.200) with Microsoft
+ SMTP Server (version=TLS1_3, cipher=TLS_AES_256_GCM_SHA384) id 15.20.8093.21
+ via Frontend Transport; Wed, 21 Oct 2026 02:30:10 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=QmFzZTY0U2lnbmF0dXJl
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=contoso.com.au; dmarc=pass action=none
+ header.from=contoso.com.au; dkim=pass header.d=contoso.com.au; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=contoso.com.au;
+ s=selector1; h=From:Date:Subject:Message-ID:Content-Type:MIME-Version;
+ bh=YmFzZTY0Ym9keWhhc2g=; b=c2lnbmF0dXJl
+Received: from KL1PR0601MB4321.apcprd06.prod.outlook.com
+ (2603:1096:820:2c::14) by SEZPR06MB5555.apcprd06.prod.outlook.com
+ (2603:1096:101:a1::7) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8069.27; Wed, 21 Oct
+ 2026 02:30:07 +0000
+From: Jordan Lee <jordan.lee@contoso.com.au>
+To: Sam Taylor <sam.taylor@fabrikam.com.au>
+Subject: Q3 invoice batch
+Thread-Topic: Q3 invoice batch
+Date: Wed, 21 Oct 2026 02:30:05 +0000
+Message-ID: <KL1PR0601MB4321A1B2C3D4E5F6@KL1PR0601MB4321.apcprd06.prod.outlook.com>
+Accept-Language: en-AU, en-US
+Content-Language: en-AU
+X-MS-Has-Attach: yes
+X-MS-Exchange-Organization-SCL: 1
+X-Originating-IP: [2001:8003:1c2b:4d00:89ab:cdef:1234:5678]
+Return-Path: jordan.lee@contoso.com.au
+MIME-Version: 1.0
