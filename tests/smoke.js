@@ -146,6 +146,10 @@ const BAD = ['hello world', '256.1.1.1', 'abc123', 'javascript:alert(1)', '<img 
   if (mob.overflow) fail('mobile: horizontal overflow');
   if (mob.small.length) fail(`mobile: tap targets <44px: ${[...new Set(mob.small)].join(', ')}`);
   console.log('ok: mobile layout', JSON.stringify(mob));
+  // A phone's layout viewport grows to fit over-wide content (innerWidth grows with it), so also compare the page
+  // width with the device width.
+  const pageWidth = await m.page.evaluate(() => document.documentElement.scrollWidth);
+  if (pageWidth > 390) fail(`mobile: page is ${pageWidth}px wide on a 390px screen`);
   if (SHOTS) {
     await m.page.waitForTimeout(300);
     await m.page.screenshot({ path: path.join(shotDir, 'mobile-light.png') });
