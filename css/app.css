@@ -135,6 +135,8 @@ button, [role="button"], summary { cursor: pointer; }
 .module-titles { flex: 1; min-width: 0; }
 .module-titles h2 { font-size: 1.0625rem; }
 .section-stack { display: grid; gap: 1rem; }
+/* Grid items default to their content's min width, which let wide tables stretch the page on phones. */
+.module > *, .section-stack > *, #results > * { min-width: 0; }
 .loading { display: flex; align-items: center; gap: .5rem; color: var(--muted); padding: 1rem 1.25rem; background: var(--card); border-radius: var(--r-card); box-shadow: var(--shadow); }
 .spinner { display: inline-flex; animation: spin 1s linear infinite; color: var(--indigo); }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -142,12 +144,12 @@ button, [role="button"], summary { cursor: pointer; }
 /* fact cards */
 .fact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(13.5rem, 1fr)); gap: 1rem; }
 .fact { display: flex; flex-direction: column; gap: .5rem; min-width: 0; }
-.fact-top { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+.fact-top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .375rem .5rem; }
 .figure { font-size: 1.875rem; line-height: 1; font-weight: 800; letter-spacing: -.01em; overflow-wrap: anywhere; }
 .figure-sm { font-size: 1.125rem; line-height: 1.25; }
 .figure.mono { font-family: var(--mono); font-weight: 600; letter-spacing: 0; }
 .figure-sm.mono { font-size: 1rem; }
-.unit { font-size: .875rem; font-weight: 600; color: var(--muted); margin-left: .375rem; letter-spacing: 0; }
+.unit { font-size: .875rem; font-weight: 600; color: var(--muted); margin-left: .375rem; letter-spacing: 0; display: inline-block; white-space: nowrap; overflow-wrap: normal; }
 .fact .caption { margin-top: auto; }
 
 /* tables */
