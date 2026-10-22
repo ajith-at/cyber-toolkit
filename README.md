@@ -10,6 +10,10 @@ A small, modular, open-source toolkit for quick security lookups that runs entir
 - **Certificates**: current TLS certificates from Certificate Transparency logs, and the subdomains they reveal.
 - **Reputation**: one-click links to VirusTotal, AbuseIPDB, Shodan, URLScan, Cisco Talos, AlienVault OTX and MalwareBazaar.
 
+Standalone tools work on pasted text or files and never send anything over the network:
+
+- **Hash & encode**: MD5, SHA-1, SHA-256, SHA-384 and SHA-512 of text or a file; Base64, Base64URL, URL, hex and HTML entity encoding and decoding; defang and refang. A hash can be sent straight to Reputation.
+
 The smart input understands IPv4/IPv6, domains (including Unicode), URLs, emails and MD5/SHA-1/SHA-256 hashes. It also restores "defanged" indicators such as `hxxps://example[.]com`.
 
 It is a static site: plain HTML, CSS and JavaScript ES modules. There is no build step, no framework, no backend, no tracking and no API keys.
@@ -26,6 +30,7 @@ It is a static site: plain HTML, CSS and JavaScript ES modules. There is no buil
   | [SSLMate Cert Spotter](https://sslmate.com/certspotter/api/) (`api.certspotter.com`) | Certificate Transparency | The registered domain |
   | [Google Fonts](https://fonts.google.com) | The Plus Jakarta Sans font | A normal font request (no indicator) |
 
+- Text and files in the standalone tools (Hash & encode) are processed in the browser and never leave it.
 - File hashes and full URLs are **not** sent anywhere unless you click a reputation link.
 - Reputation links open the third-party site in a new tab, which sends the indicator to that site. Don't paste confidential URLs or internal hostnames if that matters to you.
 - Requests are made with `referrerPolicy: no-referrer` and without credentials. A Content Security Policy limits scripts to the site itself.
@@ -53,8 +58,9 @@ js/registry.js      the list of tool modules
 js/net.js           fetch with timeout and caching, DNS-over-HTTPS, RDAP helpers
 js/ui.js            safe DOM builder, cards, tables, pills, callouts
 js/icons.js         Lucide outline icons (ISC)
+js/md5.js           MD5 for Hash & encode (WebCrypto has no MD5)
 modules/*.js        one file per tool
-tests/              Playwright smoke test and CORS probe
+tests/              Playwright smoke test, per-module tests and CORS probe
 deploy-u51.sh       maintainer script that publishes to u51.org/toolkit/
 ```
 
@@ -95,6 +101,8 @@ import myTool from '../modules/my-tool.js';
 export const MODULES = [ /* ...existing */ myTool ];
 ```
 
+**Standalone tools** (pasted text or files rather than the smart input) set `accepts: []`, list `inputs` for the home screen (e.g. `['Text', 'File']`) and provide `panel(body, { go })` instead of `render`. The panel is built once and kept while you switch tools; `go(value, toolId)` opens a lookup, e.g. `go(sha256, 'reputation')`. See `modules/encoding.js`.
+
 **How routing works:** a URL also provides its host's `ip` or `domain`, and an email provides its `domain`. A module runs when any of its `accepts` values is present in the parsed input.
 
 **Module rules:**
@@ -116,6 +124,7 @@ npm i playwright                  # any folder; point NODE_PATH at its node_modu
 python3 -m http.server 8811 &
 node tests/smoke.js               # or: node tests/smoke.js https://u51.org/toolkit/
 node tests/smoke.js --shots       # also writes screenshots/
+node tests/encoding.js            # Hash & encode: known-answer tests, UI and no-network check
 node tests/cors-probe.js          # fetches every data source from a browser page
 ```
 
@@ -133,7 +142,7 @@ The tests use the installed Chrome (`PW_CHANNEL=chrome` by default; set `PW_CHAN
 - Live reputation scores (AbuseIPDB, VirusTotal and others) combined into one risk score, through a small optional backend (e.g. a Cloudflare Worker) so API keys never reach the browser.
 - Email header analyser.
 - Breach check via k-anonymity (only a hash prefix leaves the browser).
-- Hash and Base64 tools, and a password strength meter.
+- A password strength meter.
 - CVE / vulnerability feed.
 
 ## Backlog

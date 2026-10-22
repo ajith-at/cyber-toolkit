@@ -9,12 +9,17 @@
 //   summary  one line for the home screen
 //   source   data source caption shown on the result section
 //   render(q, { body, setStatus }) async; append result cards to body; setStatus('low'|'unknown'|'caution'|'high', text)
+//
+// Standalone tools that work on pasted text or files instead of the smart input use accepts: [] and provide:
+//   inputs   labels for the home screen, e.g. ['Text', 'File']
+//   panel(body, { go })  build the tool UI once into body; go(value, toolId) opens a lookup in another tool
 
 import ipLookup from '../modules/ip-lookup.js';
 import domainLookup from '../modules/domain-lookup.js';
 import dnsEmail from '../modules/dns-email.js';
 import certificates from '../modules/certificates.js';
 import reputation from '../modules/reputation.js';
+import encoding from '../modules/encoding.js';
 
 export const MODULES = [
   ipLookup,
@@ -22,6 +27,7 @@ export const MODULES = [
   dnsEmail,
   certificates,
   reputation,
+  encoding,
 ];
 
 /** Targets a parsed query provides. */

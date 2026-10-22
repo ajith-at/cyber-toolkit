@@ -9,6 +9,7 @@ const SAMPLES = ['8.8.8.8', '1.1.1.1', 'example.com', 'google.com', 'security@go
 const $ = (s) => document.querySelector(s);
 const state = { raw: '', q: null, tool: 'all' };
 const sectionCache = new Map(); // `${query}|${moduleId}` -> { section, status }
+const panelCache = new Map(); // standalone tool id -> section (keeps typed input while switching tools)
 
 // ---------- static icons ----------
 document.querySelectorAll('[data-icon]').forEach((n) => { n.innerHTML = icon(n.dataset.icon, n.classList.contains('search-go') ? 20 : 18); });
@@ -78,6 +79,9 @@ function render() {
   const out = $('#results');
   out.replaceChildren();
   out.dataset.q = state.raw;
+  const standalone = MODULES.find((m) => m.id === state.tool && m.panel);
+  $('.hero').hidden = !!standalone;
+  if (standalone) { out.append(panelSection(standalone)); return; }
   if (!state.raw) { out.append(home()); return; }
 
   const q = detect(state.raw);
@@ -162,12 +166,27 @@ function moduleSection(q, m, onDone) {
   return section;
 }
 
+function panelSection(m) {
+  if (panelCache.has(m.id)) return panelCache.get(m.id);
+  const body = el('div', { class: 'section-stack' });
+  const section = el('section', { class: 'module', id: `mod-${m.id}`, 'aria-labelledby': `h-${m.id}` },
+    el('header', { class: 'module-head' },
+      el('span', { class: 'module-icon' }, iconEl(m.icon, 20)),
+      el('div', { class: 'module-titles' }, el('h2', { id: `h-${m.id}` }, m.name), el('p', { class: 'caption' }, m.source))),
+    body);
+  m.panel(body, { go: (v, tool) => { $('#q').value = v; go(v, tool); } });
+  panelCache.set(m.id, section);
+  return section;
+}
+
 function home() {
   return el('section', { class: 'home', 'aria-label': 'Available tools' },
     el('div', { class: 'tool-grid' }, MODULES.map((m) => el('article', { class: 'card tool-card' },
       el('div', { class: 'tool-top' }, el('span', { class: 'module-icon' }, iconEl(m.icon, 20)), el('h3', {}, m.name)),
       el('p', { class: 'caption' }, m.summary),
-      el('div', { class: 'pill-row' }, m.accepts.map((a) => el('span', { class: 'chip-static' }, { ip: 'IP', domain: 'Domain', url: 'URL', hash: 'Hash' }[a])))))));
+      el('div', { class: 'tool-foot' },
+        el('div', { class: 'pill-row' }, (m.inputs || m.accepts.map((a) => ({ ip: 'IP', domain: 'Domain', url: 'URL', hash: 'Hash' })[a])).map((a) => el('span', { class: 'chip-static' }, a))),
+        m.panel ? el('a', { href: `#tool=${m.id}`, class: 'ext' }, 'Open', iconEl('arrow-right', 14)) : null)))));
 }
 
 // ---------- boot ----------
