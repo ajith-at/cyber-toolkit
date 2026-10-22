@@ -30,6 +30,7 @@ export const ICONS = {
   "x": "<path d=\"M18 6 6 18\"/><path d=\"m6 6 12 12\"/>",
   "code-xml": "<path d=\"m18 16 4-4-4-4\"/><path d=\"m6 8-4 4 4 4\"/><path d=\"m14.5 4-5 16\"/>",
   "scale": "<path d=\"M12 3v18\"/><path d=\"m19 8 3 8a5 5 0 0 1-6 0zV7\"/><path d=\"M3 7h1a17 17 0 0 0 8-2 17 17 0 0 0 8 2h1\"/><path d=\"m5 8 3 8a5 5 0 0 1-6 0zV7\"/><path d=\"M7 21h10\"/>",
+  "podcast": "<path d=\"M12 17v4\"/><path d=\"M18 11a6 6 0 00-3-5.197\"/><path d=\"M2 11a10 10 0 015-8.662\"/><path d=\"M22 11a10 10 0 00-5-8.662\"/><path d=\"M6 11a6 6 0 013-5.197\"/><path d=\"M9 21h6\"/><rect x=\"10\" y=\"9\" width=\"4\" height=\"8\" rx=\"2\"/>",
 };
 
 export function icon(name, size = 18, cls = "") {
