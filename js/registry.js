@@ -19,6 +19,7 @@ import domainLookup from '../modules/domain-lookup.js';
 import dnsEmail from '../modules/dns-email.js';
 import certificates from '../modules/certificates.js';
 import reputation from '../modules/reputation.js';
+import breachCheck from '../modules/breach-check.js';
 import encoding from '../modules/encoding.js';
 import emailHeaders from '../modules/email-headers.js';
 
@@ -30,6 +31,7 @@ export const MODULES = [
   reputation,
   emailHeaders,
   encoding,
+  breachCheck,
 ];
 
 /** Targets a parsed query provides. */

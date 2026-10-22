@@ -230,6 +230,18 @@ label.card-title { display: block; }
 .hop-total { margin-top: .75rem; }
 .eh-out:empty { display: none; }
 
+/* password breach check */
+.bc-card { display: grid; gap: .75rem; }
+.bc-card .card-title { margin-bottom: 0; }
+.pw-row { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+.pw-field { flex: 1 1 16rem; min-width: 0; display: flex; align-items: center; background: var(--soft); border-radius: 999px; box-shadow: inset 0 0 0 1px var(--line); padding: 0 .25rem 0 1.125rem; }
+.pw-field:focus-within { box-shadow: inset 0 0 0 2px var(--indigo); }
+.pw-input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--ink); font: inherit; font-size: 1rem; min-height: 44px; outline: none; }
+.pw-toggle { width: 44px; height: 44px; flex: none; border: 0; border-radius: 50%; background: transparent; color: var(--muted); display: inline-flex; align-items: center; justify-content: center; }
+.pw-toggle:hover { background: var(--indigo-soft); color: var(--indigo); }
+.bc-out:empty { display: none; }
+.btn:disabled { opacity: .6; cursor: progress; }
+
 /* ---------- small screens ---------- */
 @media (max-width: 860px) {
   body { background: var(--shell); padding: 0; }
