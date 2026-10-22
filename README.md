@@ -10,9 +10,10 @@ A small, modular, open-source toolkit for quick security lookups that runs entir
 - **Certificates**: current TLS certificates from Certificate Transparency logs, and the subdomains they reveal.
 - **Reputation**: one-click links to VirusTotal, AbuseIPDB, Shodan, URLScan, Cisco Talos, AlienVault OTX and MalwareBazaar.
 
-Standalone tools work on pasted text or files and never send anything over the network:
+Standalone tools work on pasted text, files or a password instead of the smart input:
 
 - **Hash & encode**: MD5, SHA-1, SHA-256, SHA-384 and SHA-512 of text or a file; Base64, Base64URL, URL, hex and HTML entity encoding and decoding; defang and refang. A hash can be sent straight to Reputation.
+- **Password breach check**: whether a password appears in Have I Been Pwned's Pwned Passwords data. Only the first 5 characters of its SHA-1 hash are sent (k-anonymity), with response padding; the password never leaves the browser and is never stored or put in the URL.
 
 The smart input understands IPv4/IPv6, domains (including Unicode), URLs, emails and MD5/SHA-1/SHA-256 hashes. It also restores "defanged" indicators such as `hxxps://example[.]com`.
 
@@ -28,6 +29,7 @@ It is a static site: plain HTML, CSS and JavaScript ES modules. There is no buil
   | [rdap.org](https://rdap.org) → the regional internet registry or domain registry it redirects to (e.g. ARIN, APNIC, RIPE, Verisign) | IP and domain registration data | The IP or domain |
   | [Google Public DNS](https://developers.google.com/speed/public-dns/docs/doh/json) (`dns.google`), with [Cloudflare DNS](https://developers.cloudflare.com/1.1.1.1/encryption/dns-over-https/) as a fallback | DNS records, reverse DNS, SPF and DMARC | The domain, or the reverse name of the IP |
   | [SSLMate Cert Spotter](https://sslmate.com/certspotter/api/) (`api.certspotter.com`) | Certificate Transparency | The registered domain |
+  | [Have I Been Pwned Pwned Passwords](https://haveibeenpwned.com/API/v3#PwnedPasswords) (`api.pwnedpasswords.com`) | Password breach check | The first 5 hex characters of the password's SHA-1 hash, never the password |
   | [Google Fonts](https://fonts.google.com) | The Plus Jakarta Sans font | A normal font request (no indicator) |
 
 - Text and files in the standalone tools (Hash & encode) are processed in the browser and never leave it.
@@ -124,6 +126,7 @@ npm i playwright                  # any folder; point NODE_PATH at its node_modu
 python3 -m http.server 8811 &
 node tests/smoke.js               # or: node tests/smoke.js https://u51.org/toolkit/
 node tests/smoke.js --shots       # also writes screenshots/
+node tests/breach-check.js        # Password breach check: only a 5-character prefix is sent, nothing stored
 node tests/encoding.js            # Hash & encode: known-answer tests, UI and no-network check
 node tests/cors-probe.js          # fetches every data source from a browser page
 ```
