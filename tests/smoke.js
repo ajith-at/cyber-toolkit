@@ -57,6 +57,21 @@ const BAD = ['hello world', '256.1.1.1', 'abc123', 'javascript:alert(1)', '<img 
   await d.page.reload();
   if (await d.page.getAttribute('html', 'data-theme') !== 'light') fail('default theme should follow OS (light)');
 
+  // Podcast link: visible in the sidebar, same tab, points at the u51.org home page.
+  {
+    const pod = await d.page.evaluate(() => {
+      const a = document.querySelector('.rail-links a[data-podcast-link]');
+      return a && { href: a.getAttribute('href'), target: a.getAttribute('target'), visible: !!a.offsetParent, text: a.textContent.trim() };
+    });
+    if (!pod) fail('desktop: podcast link missing from sidebar');
+    else {
+      if (pod.href !== 'https://u51.org/') fail(`podcast link href ${pod.href}`);
+      if (pod.target) fail('podcast link should open in the same tab');
+      if (!pod.visible) fail('desktop: podcast link not visible');
+      console.log('ok: podcast link in sidebar', JSON.stringify(pod));
+    }
+  }
+
   for (const s of SAMPLES) {
     const r = await check(d.page, s.q);
     const ids = r.mods.map((m) => m.id);
@@ -137,12 +152,14 @@ const BAD = ['hello world', '256.1.1.1', 'abc123', 'javascript:alert(1)', '<img 
   await m.page.waitForFunction(() => document.querySelectorAll('section.module').length && ![...document.querySelectorAll('section.module')].some((s) => s.getAttribute('aria-busy') === 'true'), null, { timeout: 45000 });
   const mob = await m.page.evaluate(() => {
     const vis = (s) => { const e = document.querySelector(s); return !!e && getComputedStyle(e).display !== 'none'; };
-    const small = [...document.querySelectorAll('.chips .chip, .search-go, .switch-compact, .chip-sample, .btn')].filter((e) => e.offsetParent && e.getBoundingClientRect().height < 44).map((e) => e.className);
-    return { rail: vis('.rail'), chips: vis('.chips'), compact: vis('.switch-compact'), overflow: document.documentElement.scrollWidth > window.innerWidth, small };
+    const small = [...document.querySelectorAll('.chips .chip, .search-go, .switch-compact, .podcast-compact, .chip-sample, .btn')].filter((e) => e.offsetParent && e.getBoundingClientRect().height < 44).map((e) => e.className);
+    const pod = document.querySelector('.podcast-compact');
+    return { rail: vis('.rail'), chips: vis('.chips'), compact: vis('.switch-compact'), podcast: vis('.podcast-compact') && pod.getAttribute('href') === 'https://u51.org/' && !pod.target, overflow: document.documentElement.scrollWidth > window.innerWidth, small };
   });
   if (mob.rail) fail('mobile: sidebar should hide');
   if (!mob.chips) fail('mobile: chips row missing');
   if (!mob.compact) fail('mobile: compact theme switch missing');
+  if (!mob.podcast) fail('mobile: podcast link missing from toolbar');
   if (mob.overflow) fail('mobile: horizontal overflow');
   if (mob.small.length) fail(`mobile: tap targets <44px: ${[...new Set(mob.small)].join(', ')}`);
   console.log('ok: mobile layout', JSON.stringify(mob));

@@ -55,6 +55,9 @@ button, [role="button"], summary { cursor: pointer; }
 .switch[aria-checked="true"] .knob { transform: translateX(16px); }
 .switch-compact[aria-checked="true"] .track { background: var(--indigo); }
 .switch-compact { display: none; color: var(--ink); padding: 0 .25rem 0 .5rem; }
+.icon-btn { display: none; align-items: center; justify-content: center; width: 44px; height: 44px; flex: none; border-radius: 50%; color: var(--indigo); text-decoration: none; transition: background-color .15s ease-out; }
+.icon-btn:hover { background: var(--indigo-soft); }
+.icon-btn [data-icon] { display: inline-flex; }
 
 /* main */
 .main { flex: 1; min-width: 0; overflow-y: auto; display: flex; flex-direction: column; outline: none; }
@@ -199,6 +202,8 @@ ul.plain { list-style: none; margin: 0; padding: 0; display: grid; gap: .125rem;
   .toolbar-title { display: none; }
   .mobile-mark { display: inline-flex; flex: 1; }
   .switch-compact { display: flex; }
+  .podcast-compact { display: inline-flex; }
+  .foot-links { flex-wrap: wrap; gap: 0 1rem; }
   .chips { display: flex; gap: .5rem; overflow-x: auto; padding: .625rem 0 .25rem; margin: 0 -1rem; padding-inline: 1rem; scrollbar-width: none; }
   .chips::-webkit-scrollbar { display: none; }
   .chips .chip { min-height: 44px; }
