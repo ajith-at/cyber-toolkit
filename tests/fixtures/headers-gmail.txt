@@ -1,0 +1,36 @@
+Delivered-To: alex.reader@gmail.com
+Received: by 2002:a05:7300:5b0e:b0:1a2:3c4d:5e6f with SMTP id k14csp1234567dyb;
+        Tue, 20 Oct 2026 21:14:09 -0700 (PDT)
+X-Received: by 2002:a17:90b:3b45:b0:2e2:da8c:3fb4 with SMTP id ot5-20020a17090b3b4500b002e2da8c3fb4mr9876543pjb.12.1792470849123;
+        Tue, 20 Oct 2026 21:14:09 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1792470849; cv=none;
+        d=google.com; s=arc-20240605;
+        b=AbCdEf0123456789
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@github.com header.s=pf2023 header.b=Xy12Ab34;
+       spf=pass (google.com: domain of noreply@github.com designates 192.30.252.201 as permitted sender) smtp.mailfrom=noreply@github.com;
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=github.com
+Return-Path: <noreply@github.com>
+Received: from out-18.smtp.github.com (out-18.smtp.github.com. [192.30.252.201])
+        by mx.google.com with ESMTPS id d9443c01a7336-20e5a8d1234si5678901ad.123.2026.10.20.21.14.08
+        for <alex.reader@gmail.com>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 20 Oct 2026 21:14:08 -0700 (PDT)
+Received-SPF: pass (google.com: domain of noreply@github.com designates 192.30.252.201 as permitted sender) client-ip=192.30.252.201;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@github.com header.s=pf2023 header.b=Xy12Ab34;
+       spf=pass (google.com: domain of noreply@github.com designates 192.30.252.201 as permitted sender) smtp.mailfrom=noreply@github.com;
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=github.com
+Received: from github.com (hubbernetes-node-5d2e8c1.ash1-iad.github.net [10.56.112.27])
+	by smtp.github.com (Postfix) with ESMTPA id 4XYZ123abc
+	for <alex.reader@gmail.com>; Tue, 20 Oct 2026 21:14:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=github.com;
+	s=pf2023; t=1792470846; bh=abc123=; h=Date:From:To:Subject:From;
+	b=Xy12Ab34
+Date: Tue, 20 Oct 2026 21:14:06 -0700
+From: GitHub <noreply@github.com>
+To: alex.reader@gmail.com
+Message-ID: <octo-org/example/pull/1@github.com>
+Subject: [GitHub] A third-party OAuth application has been added to your account
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8

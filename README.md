@@ -12,6 +12,7 @@ A small, modular, open-source toolkit for quick security lookups that runs entir
 
 Standalone tools work on pasted text or files and never send anything over the network:
 
+- **Email headers**: paste raw headers to see the delivery path (hops in order, with the delay between them), SPF, DKIM and DMARC results, From / Reply-To / Return-Path / Sender mismatches, misleading display names, and the originating IP. Each IP and domain links into IP lookup, Domain lookup, DNS & email security and Reputation.
 - **Hash & encode**: MD5, SHA-1, SHA-256, SHA-384 and SHA-512 of text or a file; Base64, Base64URL, URL, hex and HTML entity encoding and decoding; defang and refang. A hash can be sent straight to Reputation.
 
 The smart input understands IPv4/IPv6, domains (including Unicode), URLs, emails and MD5/SHA-1/SHA-256 hashes. It also restores "defanged" indicators such as `hxxps://example[.]com`.
@@ -30,7 +31,7 @@ It is a static site: plain HTML, CSS and JavaScript ES modules. There is no buil
   | [SSLMate Cert Spotter](https://sslmate.com/certspotter/api/) (`api.certspotter.com`) | Certificate Transparency | The registered domain |
   | [Google Fonts](https://fonts.google.com) | The Plus Jakarta Sans font | A normal font request (no indicator) |
 
-- Text and files in the standalone tools (Hash & encode) are processed in the browser and never leave it.
+- Text, headers and files in the standalone tools (Email headers, Hash & encode) are processed in the browser and never leave it.
 - File hashes and full URLs are **not** sent anywhere unless you click a reputation link.
 - Reputation links open the third-party site in a new tab, which sends the indicator to that site. Don't paste confidential URLs or internal hostnames if that matters to you.
 - Requests are made with `referrerPolicy: no-referrer` and without credentials. A Content Security Policy limits scripts to the site itself.
@@ -125,6 +126,7 @@ python3 -m http.server 8811 &
 node tests/smoke.js               # or: node tests/smoke.js https://u51.org/toolkit/
 node tests/smoke.js --shots       # also writes screenshots/
 node tests/encoding.js            # Hash & encode: known-answer tests, UI and no-network check
+node tests/email-headers.js       # Email headers: Gmail, Microsoft 365 and spoofed samples (tests/fixtures/)
 node tests/cors-probe.js          # fetches every data source from a browser page
 ```
 
@@ -140,7 +142,6 @@ The tests use the installed Chrome (`PW_CHANNEL=chrome` by default; set `PW_CHAN
 ## Roadmap
 
 - Live reputation scores (AbuseIPDB, VirusTotal and others) combined into one risk score, through a small optional backend (e.g. a Cloudflare Worker) so API keys never reach the browser.
-- Email header analyser.
 - Breach check via k-anonymity (only a hash prefix leaves the browser).
 - A password strength meter.
 - CVE / vulnerability feed.
