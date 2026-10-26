@@ -1,0 +1,18 @@
+From: CERT Advisory <alerts@cert.example.org>
+Subject: Indicators for campaign ORCHID-7
+
+Infrastructure observed between 20 and 26 October 2026:
+  - https://download.update-check.example.net/v2/agent.exe?id=771
+  - http://203.0.113.45:8080/gate.php
+  - ftp://files.example.com/pub/payload.bin
+  - C2 domains: update-check.example.net, telemetry.example.co.uk
+  - Origin IPs: 198.51.100.7, 203.0.113.45 and 2001:db8:85a3::8a2e:370:7334
+  - Bracketed IPv6 link: http://[2001:db8::42]:8443/beacon
+
+Contact abuse@example.com or Soc.Team@Example.ORG with questions (see https://www.example.org/advisories/orchid-7).
+
+MD5    D41D8CD98F00B204E9800998ECF8427E
+SHA-1  da39a3ee5e6b4b0d3255bfef95601890afd80709
+SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+
+Repeat: 198.51.100.7, update-check.example.net, D41D8CD98F00B204E9800998ECF8427E.

@@ -117,6 +117,16 @@ const BAD = ['hello world', '256.1.1.1', 'abc123', 'javascript:alert(1)', '<img 
   }
   console.log('ok: bad input handled for', BAD.length, 'cases');
 
+  // Extract indicators (standalone): the example yields every indicator group.
+  {
+    await d.page.goto(`${BASE}#tool=ioc-extract`);
+    await d.page.click('#ioc-sample');
+    const groups = await d.page.$$eval('[data-group]', (g) => g.map((x) => x.dataset.group).join(','));
+    if (groups !== 'url,domain,ip,email,hash') fail(`ioc-extract groups: ${groups}`);
+    console.log('ok: extract indicators example', groups);
+    await d.page.goto(BASE);
+  }
+
   // tool filter + not-applicable message
   await d.page.goto(`${BASE}#q=8.8.8.8&tool=dns-email`);
   await d.page.waitForSelector('.callout');

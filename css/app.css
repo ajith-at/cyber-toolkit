@@ -230,6 +230,17 @@ label.card-title { display: block; }
 .hop-total { margin-top: .75rem; }
 .eh-out:empty { display: none; }
 
+/* extract indicators */
+.ioc-out:empty { display: none; }
+.ioc-summary { display: grid; gap: .625rem; }
+.ioc-summary .card-title { margin-bottom: 0; }
+.ioc-summary .chip strong { font-weight: 800; color: var(--indigo); }
+.ioc-summary .link-row { margin-top: 0; }
+.ioc-table { min-width: 0; }
+.ioc-cell { display: grid; gap: .375rem; min-width: 0; }
+.ioc-cell .mono { word-break: break-all; }
+.ioc-table td:last-child { width: 1%; }
+
 /* password breach check */
 .bc-card { display: grid; gap: .75rem; }
 .bc-card .card-title { margin-bottom: 0; }
@@ -282,6 +293,9 @@ label.card-title { display: block; }
   .ind-table tr:last-child { border-bottom: 0; }
   .ind-table td { border: 0; padding: 0; }
   .ind-table td:last-child { grid-column: 1 / -1; text-align: left; }
+  .ioc-table tr { grid-template-columns: 1fr; }
+  .ioc-summary .chip { min-height: 44px; }
+  .ioc-table td:last-child { width: auto; }
 }
 
 @media (prefers-reduced-motion: reduce) {
