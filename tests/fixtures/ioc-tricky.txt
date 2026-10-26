@@ -1,0 +1,13 @@
+Release notes for agent v2.4.1.9 (build 10.0.19041.1), version 1.2.3.4 and v2.0.
+Chrome 120.0.6099.109 on Windows 10.0.22631. Python 3.12.1 and node.js 20.1.0.
+Files: report.pdf, invoice_2026.docx, README.md, setup.py, install.sh, photos.zip, backup.tar.gz, id_rsa.pub
+Code: System.IO.File, DateTime.Now, std::vector<int>, a::b, obj.property.value
+Times: 10:30:00, 23:59; MAC 00:1a:2b:3c:4d:5e; ratio 3:2:1
+GUID 123e4567-e89b-12d3-a456-426614174000
+SHA-512 cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e
+Numbers: 12345678901234567890123456789012 and zero hash 00000000000000000000000000000000
+Bad IPs: 256.1.1.1, 1.2.3, 1.2.3.4.5, 01.02.03.04
+Abbreviations: e.g. i.e. U.S. a.m. etc.
+Email-ish: user@localhost, name@ and @handle
+Markup: <img src=x onerror="window.__xss=1"> <script>window.__xss=2</script>
+Real one to keep: 1.2.3.4 inside text is fine.

@@ -13,6 +13,7 @@ A small, modular, open-source toolkit for quick security lookups that runs entir
 Standalone tools work on pasted text, files or a password instead of the smart input:
 
 - **Email headers**: paste raw headers to see the delivery path (hops in order, with the delay between them), SPF, DKIM and DMARC results, From / Reply-To / Return-Path / Sender mismatches, misleading display names, and the originating IP. Each IP and domain links into IP lookup, Domain lookup, DNS & email security and Reputation.
+- **Extract indicators**: paste an alert email, threat report or chat message to pull out every IPv4/IPv6 address, domain, URL, email address and MD5 / SHA-1 / SHA-256 hash, including defanged ones (`hxxp`, `[.]`, `(.)`, `[@]`). Duplicates are removed and results are grouped by type with a count. Copy the list plain (as written), defanged for safe sharing, or refanged, and "Check" any indicator in the smart input. File names (`report.pdf`) and version numbers (`v2.4.1.9`) are ignored.
 - **Hash & encode**: MD5, SHA-1, SHA-256, SHA-384 and SHA-512 of text or a file; Base64, Base64URL, URL, hex and HTML entity encoding and decoding; defang and refang. A hash can be sent straight to Reputation.
 - **Password breach check**: whether a password appears in Have I Been Pwned's Pwned Passwords data. Only the first 5 characters of its SHA-1 hash are sent (k-anonymity), with response padding; the password never leaves the browser and is never stored or put in the URL.
 
@@ -33,7 +34,7 @@ It is a static site: plain HTML, CSS and JavaScript ES modules. There is no buil
   | [Have I Been Pwned Pwned Passwords](https://haveibeenpwned.com/API/v3#PwnedPasswords) (`api.pwnedpasswords.com`) | Password breach check | The first 5 hex characters of the password's SHA-1 hash, never the password |
   | [Google Fonts](https://fonts.google.com) | The Plus Jakarta Sans font | A normal font request (no indicator) |
 
-- Text, headers and files in the standalone tools (Email headers, Hash & encode) are processed in the browser and never leave it.
+- Text, headers and files in the standalone tools (Email headers, Extract indicators, Hash & encode) are processed in the browser and never leave it.
 - File hashes and full URLs are **not** sent anywhere unless you click a reputation link.
 - Reputation links open the third-party site in a new tab, which sends the indicator to that site. Don't paste confidential URLs or internal hostnames if that matters to you.
 - Requests are made with `referrerPolicy: no-referrer` and without credentials. A Content Security Policy limits scripts to the site itself.
@@ -62,6 +63,8 @@ js/net.js           fetch with timeout and caching, DNS-over-HTTPS, RDAP helpers
 js/ui.js            safe DOM builder, cards, tables, pills, callouts
 js/icons.js         Lucide outline icons (ISC)
 js/md5.js           MD5 for Hash & encode (WebCrypto has no MD5)
+js/ioc.js           defang / refang and indicator extraction (shared by Extract indicators and Hash & encode)
+js/tlds.js          IANA top-level domain list snapshot, used to tell domains from file names
 modules/*.js        one file per tool
 tests/              Playwright smoke test, per-module tests and CORS probe
 deploy-u51.sh       maintainer script that publishes to u51.org/toolkit/
@@ -130,6 +133,7 @@ node tests/smoke.js --shots       # also writes screenshots/
 node tests/breach-check.js        # Password breach check: only a 5-character prefix is sent, nothing stored
 node tests/encoding.js            # Hash & encode: known-answer tests, UI and no-network check
 node tests/email-headers.js       # Email headers: Gmail, Microsoft 365 and spoofed samples (tests/fixtures/)
+node tests/ioc-extract.js         # Extract indicators: normal, defanged and tricky fixtures, defang/refang round trips, copy, UI
 node tests/cors-probe.js          # fetches every data source from a browser page
 node tests/reputation-links.js    # reputation link formats (offline)
 ```

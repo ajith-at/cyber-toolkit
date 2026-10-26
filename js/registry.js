@@ -22,6 +22,7 @@ import reputation from '../modules/reputation.js';
 import breachCheck from '../modules/breach-check.js';
 import encoding from '../modules/encoding.js';
 import emailHeaders from '../modules/email-headers.js';
+import iocExtract from '../modules/ioc-extract.js';
 
 export const MODULES = [
   ipLookup,
@@ -30,6 +31,7 @@ export const MODULES = [
   certificates,
   reputation,
   emailHeaders,
+  iocExtract,
   encoding,
   breachCheck,
 ];

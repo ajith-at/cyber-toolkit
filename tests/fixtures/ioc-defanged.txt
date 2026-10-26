@@ -1,0 +1,9 @@
+[Chat] analyst: don't click, defanged below
+hxxps://login-microsoftonline[.]example[.]com/common/oauth2?client=abc
+hXXp://198.51.100[.]99/drop/stage2.ps1
+hxxps[://]short.example[.]net/x7
+fxp://archive(.)example(.)org/a.zip
+callback host c2{.}bad-actor[.]example and backup c2[dot]bad-actor[dot]example
+IP 192[.]0[.]2[.]10 and 2001[:]db8[:][:]bad
+mail from billing[@]invoice-portal[.]example and refunds[at]invoice-portal[.]example
+evil[.]zip is a domain here because it was defanged

@@ -132,14 +132,14 @@ async function writeClipboard(text) {
   return ok;
 }
 
-/** Button that copies getText() and announces the result. label is used for the accessible name. */
-export function copyButton(getText, label = 'Copy') {
-  const text = el('span', {}, 'Copy');
+/** Button that copies getText() and announces the result. label is used for the accessible name; caption is the visible text. */
+export function copyButton(getText, label = 'Copy', caption = 'Copy') {
+  const text = el('span', {}, caption);
   const b = el('button', { type: 'button', class: 'btn btn-secondary btn-sm', 'aria-label': label, onclick: async () => {
     const ok = await writeClipboard(getText());
     text.textContent = ok ? 'Copied' : 'Copy failed';
     announce(ok ? 'Copied to clipboard' : 'Could not copy. Select the text and copy it manually.');
-    setTimeout(() => { text.textContent = 'Copy'; }, 1600);
+    setTimeout(() => { text.textContent = caption; }, 1600);
   } }, iconEl('copy', 16), text);
   return b;
 }

@@ -2,6 +2,7 @@
 import { el, iconEl, copyButton, announce, loading } from '../js/ui.js';
 import { md5 } from '../js/md5.js';
 import { HASHES } from '../js/detect.js';
+import { defang, refang } from '../js/ioc.js';
 
 const enc = new TextEncoder();
 const utf8 = (bytes) => new TextDecoder('utf-8', { fatal: true }).decode(bytes);
@@ -71,14 +72,8 @@ export function htmlDecode(s) {
 }
 
 // ---------- defang / refang ----------
-const INDICATOR = /\b(?:\d{1,3}(?:\.\d{1,3}){3}|(?:[a-z0-9-]+\.)+[a-z][a-z0-9-]{1,62})\b/gi;
-export function defang(s) {
-  return s.replace(/\bhttp(s?):\/\//gi, 'hxxp$1://').replace(/\bftp:\/\//gi, 'fxp://').replace(INDICATOR, (m) => m.replace(/\./g, '[.]'));
-}
-export function refang(s) {
-  return s.replace(/\bhxxp(s?):\/\//gi, 'http$1://').replace(/\bfxp:\/\//gi, 'ftp://')
-    .replace(/\[\.\]|\(\.\)|\{\.\}|\[dot\]/gi, '.').replace(/\[@\]|\[at\]/gi, '@').replace(/\[:\]/g, ':');
-}
+// Shared with Extract indicators; see js/ioc.js.
+export { defang, refang };
 
 /** Bytes to text when they are UTF-8, otherwise hex (flagged). */
 function bytesOut(bytes) {
