@@ -9,6 +9,8 @@
 //   summary  one line for the home screen
 //   source   data source caption shown on the result section
 //   render(q, { body, setStatus }) async; append result cards to body; setStatus('low'|'unknown'|'caution'|'high', text)
+//            and return { facts: [[label, value], ...], raw? } with plain-text key facts for Copy as Markdown / Download JSON
+//            (js/export.js). Return facts on error paths too.
 //
 // Standalone tools that work on pasted text or files instead of the smart input use accepts: [] and provide:
 //   inputs   labels for the home screen, e.g. ['Text', 'File']

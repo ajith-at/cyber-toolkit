@@ -82,13 +82,13 @@ export default {
     } catch (e) {
       setStatus('unknown', 'Unavailable');
       body.append(errorCallout(e, `https://dns.google/query?name=${encodeURIComponent(host)}`, 'Open in Google Public DNS'));
-      return;
+      return { facts: [['Host', host], ['DNS', 'Unavailable']] };
     }
     const by = Object.fromEntries(TYPES.map((t, i) => [t, results[i]]));
     if (by.A.nx) {
       setStatus('caution', 'Does not exist');
       body.append(callout('caution', `${host} does not exist in DNS`, 'The name returned NXDOMAIN. It may be unregistered, expired or mistyped.'));
-      return;
+      return { facts: [['Host', host], ['DNS', 'Does not exist (NXDOMAIN)']] };
     }
     const mailMx = mailRes ? mailRes[0] : by.MX;
     const txts = (mailRes ? mailRes[1] : by.TXT).answers.map((a) => a.data);
@@ -120,5 +120,15 @@ export default {
       ['DMARC found at', dmarc.record ? mono(`_dmarc.${dmarcRes.at}`) : null],
       ['DMARC reports (rua)', dmarc.rua ? mono(dmarc.rua) : null],
     ]));
+
+    const recs = (t) => by[t].answers.map((a) => a.data);
+    return {
+      facts: [
+        ['Email security grade', gr.g], ['Mail domain', mailDomain], ['SPF', `${spf.word}${spf.record ? `: ${spf.record}` : ''}`],
+        ['DMARC', `${dmarc.word}${dmarc.record ? `: ${dmarc.record}` : ''}`],
+        ['Mail servers (MX)', nullMx ? 'Null MX (receives no mail)' : mx.map((m) => `${m.pr} ${m.ex}`)],
+        ['A', recs('A')], ['AAAA', recs('AAAA')], ['NS', recs('NS')], ['DNSSEC validated', by.A.dnssec ? 'Yes' : 'No'],
+      ],
+    };
   },
 };

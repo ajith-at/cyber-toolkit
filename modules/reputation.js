@@ -75,14 +75,18 @@ export default {
 
   async render(q, { body, setStatus }) {
     setStatus('unknown', 'Check externally');
+    const facts = [];
     for (const [kind, value, label] of targets(q)) {
-      const cards = PROVIDERS.map((p) => [p, p[kind]?.(value, q)]).filter(([, href]) => href).map(([p, href]) =>
+      const links = PROVIDERS.map((p) => [p, p[kind]?.(value, q)]).filter(([, href]) => href);
+      const cards = links.map(([p, href]) =>
         el('article', { class: 'card provider' },
           el('div', { class: 'provider-top' }, el('h4', {}, p.name), iconEl('external-link', 16)),
           el('p', { class: 'caption' }, p.what),
           extLink(href, `Open in ${p.name}`, { button: true })));
       body.append(el('div', { class: 'subhead' }, el('span', { class: 'label' }, label), mono(value)), el('div', { class: 'provider-grid' }, cards));
+      for (const [p, href] of links) facts.push([`${p.name} (${label.toLowerCase()})`, href]);
     }
     body.append(el('p', { class: 'note' }, 'Opening a link sends the indicator to that service. Avoid pasting confidential URLs or internal hostnames.'));
+    return { facts };
   },
 };

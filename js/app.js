@@ -1,7 +1,8 @@
 import { MODULES, modulesFor } from './registry.js';
 import { detect, TYPE_LABEL } from './detect.js';
 import { icon } from './icons.js';
-import { el, pill, callout, mono, worst, loading, iconEl, errorCallout } from './ui.js';
+import { el, pill, callout, mono, worst, loading, iconEl, errorCallout, copyButton, announce } from './ui.js';
+import { toMarkdown, toJson, fileName } from './export.js';
 
 const SAMPLES = ['8.8.8.8', '1.1.1.1', 'example.com', 'google.com', 'security@google.com',
   'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'];
@@ -112,6 +113,30 @@ function summaryCard(q, mods, shown = mods) {
   const filtered = state.tool !== 'all';
   const statusSlot = el('span', {}, pill('unknown', 'Checking…'));
   const statusLabel = filtered ? (MODULES.find((m) => m.id === state.tool)?.name || 'Status') : 'Overall';
+  let overall = { status: null, text: null };
+  const exportData = () => ({
+    input: q.display,
+    type: TYPE_LABEL[q.type],
+    overall,
+    at: new Date(),
+    results: shown.map((m) => {
+      const c = sectionCache.get(`${q.value}|${m.id}`);
+      return { id: m.id, name: m.name, status: c?.status || null, statusText: c?.text || null, facts: c?.result?.facts, raw: c?.result?.raw };
+    }),
+  });
+  const download = () => {
+    const d = exportData();
+    const url = URL.createObjectURL(new Blob([toJson(d)], { type: 'application/json' }));
+    const a = el('a', { href: url, download: fileName(q.display, d.at) });
+    document.body.append(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    announce('JSON file downloaded');
+  };
+  const exportRow = shown.length ? el('div', { class: 'link-row summary-export' },
+    copyButton(() => toMarkdown(exportData()), 'Copy results as Markdown', 'Copy as Markdown'),
+    el('button', { type: 'button', class: 'btn btn-secondary btn-sm', 'aria-label': 'Download results as JSON', onclick: download }, iconEl('download', 16), el('span', {}, 'Download JSON'))) : null;
   const node = el('section', { class: 'card summary', 'aria-label': 'Input summary' },
     el('div', { class: 'summary-main' },
       el('div', { class: 'summary-id' },
@@ -121,13 +146,15 @@ function summaryCard(q, mods, shown = mods) {
         q.type === 'url' || q.type === 'email' ? el('p', { class: 'caption' }, 'Checking host ', mono(q.ip || q.domain)) : null,
         q.refanged ? el('p', { class: 'caption' }, 'Defanged input was restored (hxxp, [.] and similar).') : null),
       el('div', { class: 'summary-status' }, el('span', { class: 'label' }, statusLabel), statusSlot)),
-    el('div', { class: 'summary-tools' }, mods.map((m) => el('a', { href: `#${new URLSearchParams({ q: state.raw, ...(m.id === 'all' ? {} : { tool: m.id }) })}`, class: 'chip chip-soft' }, iconEl(m.icon, 14), m.name))));
+    el('div', { class: 'summary-tools' }, mods.map((m) => el('a', { href: `#${new URLSearchParams({ q: state.raw, ...(m.id === 'all' ? {} : { tool: m.id }) })}`, class: 'chip chip-soft' }, iconEl(m.icon, 14), m.name))),
+    exportRow);
   const update = () => {
     if (!shown.length) { statusSlot.replaceChildren(pill('unknown', 'Not checked')); return; }
     const done = shown.map((m) => sectionCache.get(`${q.value}|${m.id}`)).filter((c) => c && c.status);
-    if (done.length < shown.length) { statusSlot.replaceChildren(pill('unknown', filtered ? 'Checking…' : `Checking ${done.length}/${shown.length}`)); return; }
+    if (done.length < shown.length) { overall = { status: null, text: null }; statusSlot.replaceChildren(pill('unknown', filtered ? 'Checking…' : `Checking ${done.length}/${shown.length}`)); return; }
     const scored = done.map((c) => c.status).filter((s) => s !== 'unknown');
     const w = scored.length ? worst(...scored) : 'unknown';
+    overall = { status: w, text: w === 'low' ? 'No red flags' : null };
     statusSlot.replaceChildren(pill(w, w === 'low' ? 'No red flags' : undefined));
   };
   return { node, update };
@@ -146,7 +173,7 @@ function moduleSection(q, m, onDone) {
       el('div', { class: 'module-titles' }, el('h2', { id: `h-${m.id}` }, m.name), el('p', { class: 'caption' }, m.source)),
       statusSlot),
     body);
-  const entry = { section, status: null, listeners: [onDone] };
+  const entry = { section, status: null, text: null, result: null, listeners: [onDone] };
   sectionCache.set(key, entry);
 
   let status = 'unknown';
@@ -155,6 +182,7 @@ function moduleSection(q, m, onDone) {
   const target = el('div', { class: 'section-stack' });
   Promise.resolve()
     .then(() => m.render(q, { body: target, setStatus }))
+    .then((r) => { entry.result = r && typeof r === 'object' ? r : null; })
     .catch((err) => {
       console.warn(`[${m.id}]`, err);
       status = 'unknown'; text = 'Error';
@@ -165,6 +193,7 @@ function moduleSection(q, m, onDone) {
       statusSlot.replaceChildren(pill(status, text));
       section.setAttribute('aria-busy', 'false');
       entry.status = status;
+      entry.text = text || null;
       entry.listeners.splice(0).forEach((f) => f());
     });
   return section;

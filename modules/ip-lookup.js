@@ -17,7 +17,7 @@ export default {
     if (scope) {
       setStatus('unknown', 'Not public');
       body.append(callout('unknown', `${ip} is a ${scope} address`, 'It is not routed on the public internet, so there is no public owner or reputation to look up. If it appears in logs, look at your own network.'));
-      return;
+      return { facts: [['IP address', ip], ['Scope', `${scope} (not publicly routed)`]] };
     }
 
     const [r, ptr] = await Promise.allSettled([rdap('ip', ip), doh(reverseName(ip), 'PTR')]);
@@ -27,7 +27,7 @@ export default {
       setStatus('unknown', 'Unavailable');
       body.append(errorCallout(r.reason, `https://client.rdap.org/?type=ip&object=${encodeURIComponent(ip)}`, 'Try the RDAP web client'));
       if (names.length) body.append(detailsTable('Reverse DNS', [['PTR', list(names, true)]]));
-      return;
+      return { facts: [['IP address', ip], ['RDAP', 'Unavailable'], ['Reverse DNS (PTR)', names]] };
     }
 
     const d = r.value;
@@ -70,5 +70,14 @@ export default {
       ['Reverse DNS (PTR)', list(names, true)],
       ['RDAP server', server || null],
     ], el('div', { class: 'card-foot' }, rawJson('View raw RDAP response', d), extLink(`https://client.rdap.org/?type=ip&object=${encodeURIComponent(ip)}`, 'Open in RDAP client'))));
+
+    return {
+      facts: [
+        ['IP address', ip], ['Owner', org], ['Network name', d.name], ['Network range', range], ['CIDR', cidrs],
+        ['Country', country], ['Abuse contact', abuse.email], ['Registered', fmtDate(registered)], ['Last changed', fmtDate(changed)],
+        ['Reverse DNS (PTR)', names], ['RDAP server', server || null],
+      ],
+      raw: d,
+    };
   },
 };
