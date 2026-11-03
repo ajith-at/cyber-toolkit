@@ -128,6 +128,7 @@ button, [role="button"], summary { cursor: pointer; }
 .summary-value { font-size: 1.125rem; color: var(--ink); font-weight: 600; }
 .summary-status { display: grid; justify-items: end; gap: .25rem; flex: none; }
 .summary-tools { display: flex; flex-wrap: wrap; gap: .5rem; }
+.summary-export { margin-top: 0; padding-top: .75rem; border-top: 1px solid var(--line); }
 
 /* module sections */
 .module { display: grid; gap: .875rem; scroll-margin-top: 6rem; }

@@ -62,7 +62,7 @@ export default {
     if (!res) {
       setStatus('unknown', 'Unavailable');
       body.append(callout('unknown', 'Certificate logs could not be reached', crtErr?.status === 429 ? 'Cert Spotter\'s free hourly limit was reached. Try again later, or search crt.sh directly.' : 'Cert Spotter did not answer from the browser. Use the link to search crt.sh directly.', links));
-      return;
+      return { facts: [['Domain', domain], ['Certificates', 'Logs unavailable']] };
     }
 
     const certs = res.certs.sort((a, b) => b.notBefore - a.notBefore);
@@ -78,7 +78,7 @@ export default {
     if (domain !== q.domain) body.append(el('p', { class: 'note' }, 'Showing certificates for ', mono(domain), ' and all its subdomains.'));
     if (!certs.length) {
       body.append(callout('unknown', 'No current certificates found', `No unexpired certificates for ${domain} were found in the logs. The site may not use HTTPS, or may use a certificate for a different name.`, links));
-      return;
+      return { facts: [['Domain', domain], ['Certificates', 'None unexpired found']] };
     }
 
     body.append(factGrid(
@@ -104,5 +104,13 @@ export default {
     body.append(listTable(`Most recent certificates (${rows.length} of ${fmtNum(certs.length)})`,
       [{ key: 'issued', label: 'Issued' }, { key: 'expires', label: 'Expires' }, { key: 'issuer', label: 'Issuer' }, { key: 'names', label: 'Names' }, { key: 'id', label: 'Certificate' }],
       rows, el('div', { class: 'card-foot' }, links)));
+
+    return {
+      facts: [
+        ['Domain', domain], ['Source', res.src], ['Certificates', `${certs.length}${res.more ? '+' : ''} unexpired`], ['Currently valid', String(valid.length)],
+        ['Latest issued', latest ? `${fmtDate(latest.notBefore)} by ${latest.issuer}` : null], ['Next expiry', soonest ? fmtDate(soonest) : null],
+        ['Issuers', issuers], ['Subdomains seen', subs.length ? `${subs.length}: ${subs.slice(0, 30).join(', ')}${subs.length > 30 ? ', …' : ''}` : '0'],
+      ],
+    };
   },
 };

@@ -20,7 +20,7 @@ export default {
         ? 'No RDAP record was found. The domain may not exist, or its registry does not publish RDAP (for example .de).'
         : e.message;
       body.append(errorCallout({ message: msg }, `https://lookup.icann.org/en/lookup?name=${encodeURIComponent(q.domain)}`, 'Look it up on ICANN Lookup'));
-      return;
+      return { facts: [['Domain', q.domain], ['RDAP', msg]] };
     }
     const { name, data: d } = res;
     const created = eventDate(d, 'registration');
@@ -70,5 +70,14 @@ export default {
       ['DNSSEC', signed == null ? null : signed ? 'Signed' : 'Not signed'],
       ['Nameservers', list(ns, true)],
     ], el('div', { class: 'card-foot' }, rawJson('View raw RDAP response', d), extLink(`https://lookup.icann.org/en/lookup?name=${encodeURIComponent(name)}`, 'Open on ICANN Lookup'))));
+
+    return {
+      facts: [
+        ['Domain', name.toLowerCase()], ['Domain age', age == null ? null : `${age} days (${ageText})`], ['Created', fmtDate(created)],
+        ['Expires', fmtDate(expires)], ['Last changed', fmtDate(changed)], ['Registrar', registrar.name], ['IANA ID', ianaId],
+        ['Registrar abuse', abuse.email], ['Status', status], ['DNSSEC', signed == null ? null : signed ? 'Signed' : 'Not signed'], ['Nameservers', ns],
+      ],
+      raw: d,
+    };
   },
 };

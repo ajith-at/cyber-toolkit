@@ -10,6 +10,8 @@ A small, modular, open-source toolkit for quick security lookups that runs entir
 - **Certificates**: current TLS certificates from Certificate Transparency logs, and the subdomains they reveal.
 - **Reputation**: one-click links to VirusTotal, AbuseIPDB, Shodan, URLScan, Cisco Talos, AlienVault OTX and MalwareBazaar.
 
+Every lookup can be exported from the summary card: **Copy as Markdown** gives a table of key facts per tool, ready to paste into GitHub, Jira or Notion, and **Download JSON** saves the input, the time it was checked, the overall and per-tool status, and the facts. Both cover the tools on screen.
+
 Standalone tools work on pasted text, files or a password instead of the smart input:
 
 - **Email headers**: paste raw headers to see the delivery path (hops in order, with the delay between them), SPF, DKIM and DMARC results, From / Reply-To / Return-Path / Sender mismatches, misleading display names, and the originating IP. Each IP and domain links into IP lookup, Domain lookup, DNS & email security and Reputation.
@@ -96,6 +98,7 @@ export default {
       factGrid(factCard({ label: 'Score', figure: data.score, status: 'low' })),
       detailsTable('Details', [['Domain', mono(q.domain)], ['Score', String(data.score)]]),
     );
+    return { facts: [['Domain', q.domain], ['Score', data.score]], raw: data };
   },
 };
 ```
@@ -110,6 +113,8 @@ export const MODULES = [ /* ...existing */ myTool ];
 **Standalone tools** (pasted text or files rather than the smart input) set `accepts: []`, list `inputs` for the home screen (e.g. `['Text', 'File']`) and provide `panel(body, { go })` instead of `render`. The panel is built once and kept while you switch tools; `go(value, toolId)` opens a lookup, e.g. `go(sha256, 'reputation')`. See `modules/encoding.js`.
 
 **How routing works:** a URL also provides its host's `ip` or `domain`, and an email provides its `domain`. A module runs when any of its `accepts` values is present in the parsed input.
+
+**Export:** `render` should return `{ facts, raw? }`. `facts` is a list of `[label, value]` pairs of plain text (a value can also be an array, which becomes a comma list; empty values are dropped). They feed **Copy as Markdown** and **Download JSON** on the summary card. `raw` is optional and kept for future use; it is not exported by default. Return the facts on error paths too, so the export says what was checked.
 
 **Module rules:**
 
@@ -134,6 +139,7 @@ node tests/breach-check.js        # Password breach check: only a 5-character pr
 node tests/encoding.js            # Hash & encode: known-answer tests, UI and no-network check
 node tests/email-headers.js       # Email headers: Gmail, Microsoft 365 and spoofed samples (tests/fixtures/)
 node tests/ioc-extract.js         # Extract indicators: normal, defanged and tricky fixtures, defang/refang round trips, copy, UI
+node tests/export.js              # Copy as Markdown / Download JSON: unit checks, clipboard text, downloaded file, light, dark, mobile
 node tests/cors-probe.js          # fetches every data source from a browser page
 node tests/reputation-links.js    # reputation link formats (offline)
 ```
