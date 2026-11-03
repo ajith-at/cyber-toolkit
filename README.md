@@ -130,10 +130,10 @@ The visual style is adapted from the "Soft Indigo Desk" dashboard brief. It uses
 
 ## Tests
 
-Run the offline unit tests with Node.js 22.7 or newer; no install, server or browser is needed:
+Run the offline unit tests from the repo root with Node.js 22.7 or newer; no install, server or browser is needed:
 
 ```bash
-node --test tests/
+node --test "tests/*.test.mjs"
 ```
 
 These cover input detection/refanging, SPF/DMARC policies and reverse DNS. The suite fails if any test calls `fetch`.
