@@ -68,7 +68,7 @@ js/md5.js           MD5 for Hash & encode (WebCrypto has no MD5)
 js/ioc.js           defang / refang and indicator extraction (shared by Extract indicators and Hash & encode)
 js/tlds.js          IANA top-level domain list snapshot, used to tell domains from file names
 modules/*.js        one file per tool
-tests/              Playwright smoke test, per-module tests and CORS probe
+tests/              Offline unit tests, Playwright smoke tests and CORS probe
 deploy-u51.sh       maintainer script that publishes to u51.org/toolkit/
 ```
 
@@ -130,6 +130,16 @@ The visual style is adapted from the "Soft Indigo Desk" dashboard brief. It uses
 
 ## Tests
 
+Run the offline unit tests with Node.js 22.7 or newer; no install, server or browser is needed:
+
+```bash
+node --test tests/
+```
+
+These cover input detection/refanging, SPF/DMARC policies and reverse DNS. The suite fails if any test calls `fetch`.
+
+For the browser and live-service checks:
+
 ```bash
 npm i playwright                  # any folder; point NODE_PATH at its node_modules
 python3 -m http.server 8811 &
@@ -144,7 +154,7 @@ node tests/cors-probe.js          # fetches every data source from a browser pag
 node tests/reputation-links.js    # reputation link formats (offline)
 ```
 
-The tests use the installed Chrome (`PW_CHANNEL=chrome` by default; set `PW_CHANNEL=chromium` to use Playwright's own build). The smoke test covers sample IPs, domains, a URL, an email, a hash, defanged input, a private IP, bad input, the tool filter, dark mode and a mobile viewport. It fails on any console error.
+The browser tests use the installed Chrome (`PW_CHANNEL=chrome` by default; set `PW_CHANNEL=chromium` to use Playwright's own build). The smoke test covers sample IPs, domains, a URL, an email, a hash, defanged input, a private IP, bad input, the tool filter, dark mode and a mobile viewport. It fails on any console error.
 
 ## Known limits
 
