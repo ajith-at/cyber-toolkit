@@ -130,7 +130,7 @@ The visual style is adapted from the "Soft Indigo Desk" dashboard brief. It uses
 
 ## Tests
 
-Run the offline unit tests from the repo root with Node.js 22.7 or newer; no install, server or browser is needed.:
+Run the offline unit tests from the repo root with Node.js 22.7 or newer; no install, server or browser is needed:
 
 ```bash
 node --test "tests/*.test.mjs"
