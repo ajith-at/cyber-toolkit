@@ -3,13 +3,16 @@
 import { el, iconEl, mono, extLink } from '../js/ui.js';
 import { guessRegistrable } from '../js/net.js';
 
-// Link formats checked on 22 Oct 2026 by loading each link in headless Chrome, plus the provider's own pages (#10):
-//   VirusTotal  ip, domain, file, url (double-encoded search redirects to /gui/url/<id>)        works
-//   AbuseIPDB   /check/<ip|domain>: a domain resolves to its IP's report                            works (bot check blocks scripts; page content confirmed)
-//   Talos       reputation_center/lookup?search=<ip|domain>, talos_file_reputation?s=<sha256>       works
-//   URLScan     search/#page.ip:"..." and page.url:"..." work; /domain/<d> now needs a login, so domains use page.domain:"..."
+// Link formats re-checked on 6 Nov 2026 in a normal Chromium on the box (no sign-in) for OTX and MalwareBazaar (#10):
+//   VirusTotal  ip, domain, file, url (double-encoded search redirects to /gui/url/<id>)        works (earlier)
+//   AbuseIPDB   /check/<ip|domain>: a domain resolves to its IP's report                            works (earlier; bot check blocks scripts)
+//   Talos       reputation_center/lookup?search=<ip|domain>, talos_file_reputation?s=<sha256>       works (earlier)
+//   URLScan     search/#page.ip:"..." and page.url:"..." work; /domain/<d> needs a login, so domains use page.domain:"..."
 //   Shodan      /host/<ip> works; hostname: search filters need a login, so domains use /domain/<registrable domain>
-//   OTX, MalwareBazaar  not confirmed: both answered automated browsers with a bot check or error page
+//   OTX         /indicator/{ip|domain|hostname|file}/… PASS; /indicator/url/<raw-url> PASS — do NOT
+//               percent-encode the whole URL (encodeURIComponent made OTX show "Invalid url (https%3A%2F%2F…)")
+//   MalwareBazaar  SHA-256 uses /sample/<sha256>/; MD5/SHA-1 keep browse.php?search=md5:… / sha1:…
+//               Automated/box browsers still hit a one-time /verify-ua/ checkbox before the page; links are for humans
 
 const e = encodeURIComponent;
 
@@ -47,12 +50,16 @@ export const PROVIDERS = [
     name: 'AlienVault OTX', what: 'Open threat-intel pulses that mention it.',
     ip: (v) => `https://otx.alienvault.com/indicator/ip/${e(v)}`,
     domain: (v) => `https://otx.alienvault.com/indicator/${v.split('.').length > 2 ? 'hostname' : 'domain'}/${e(v)}`,
-    url: (v) => `https://otx.alienvault.com/indicator/url/${e(v)}`,
+    url: (v) => `https://otx.alienvault.com/indicator/url/${v}`,
     hash: (v) => `https://otx.alienvault.com/indicator/file/${e(v)}`,
   },
   {
     name: 'MalwareBazaar', what: 'Malware samples shared by abuse.ch.',
-    hash: (v, q) => `https://bazaar.abuse.ch/browse.php?search=${e(`${{ MD5: 'md5', 'SHA-1': 'sha1', 'SHA-256': 'sha256' }[q.hashType]}:${v}`)}`,
+    hash: (v, q) => {
+      if (q.hashType === 'SHA-256') return `https://bazaar.abuse.ch/sample/${v}/`;
+      const prefix = { MD5: 'md5', 'SHA-1': 'sha1' }[q.hashType];
+      return prefix ? `https://bazaar.abuse.ch/browse.php?search=${e(`${prefix}:${v}`)}` : null;
+    },
   },
 ];
 

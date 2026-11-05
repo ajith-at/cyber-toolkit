@@ -24,13 +24,13 @@ const EXPECT = {
   url: {
     VirusTotal: 'https://www.virustotal.com/gui/search/https%253A%252F%252Fexample.com%252Flogin',
     URLScan: 'https://urlscan.io/search/#page.url%3A%22https%3A%2F%2Fexample.com%2Flogin%22',
-    'AlienVault OTX': 'https://otx.alienvault.com/indicator/url/https%3A%2F%2Fexample.com%2Flogin',
+    'AlienVault OTX': 'https://otx.alienvault.com/indicator/url/https://example.com/login',
   },
   hash: {
     VirusTotal: `https://www.virustotal.com/gui/file/${SHA}`,
     'Cisco Talos': `https://talosintelligence.com/talos_file_reputation?s=${SHA}`,
     'AlienVault OTX': `https://otx.alienvault.com/indicator/file/${SHA}`,
-    MalwareBazaar: `https://bazaar.abuse.ch/browse.php?search=sha256%3A${SHA}`,
+    MalwareBazaar: `https://bazaar.abuse.ch/sample/${SHA}/`,
   },
 };
 
