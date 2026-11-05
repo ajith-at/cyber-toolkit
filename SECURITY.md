@@ -30,3 +30,9 @@ Out of scope:
 ## Supported versions
 
 Only the latest version on `main` (deployed at https://u51.org/toolkit/) is supported.
+
+## Framing
+
+The Content Security Policy is a meta tag. Browsers ignore `frame-ancestors` there, so the page loads `js/frame-buster.js`, which breaks out of a parent frame and hides the document if it is still framed. `connect-src` stays `https:` because RDAP redirects to many registry hosts.
+
+A host in front of the site, such as Cloudflare for u51.org, can add the headers a meta tag cannot: `X-Frame-Options: DENY` and `Content-Security-Policy: frame-ancestors 'none'`.

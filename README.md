@@ -10,7 +10,7 @@ A small, modular, open-source toolkit for quick security lookups that runs entir
 - **Certificates**: current TLS certificates from Certificate Transparency logs, and the subdomains they reveal.
 - **Reputation**: one-click links to VirusTotal, AbuseIPDB, Shodan, URLScan, Cisco Talos, AlienVault OTX and MalwareBazaar.
 
-Every lookup can be exported from the summary card: **Copy as Markdown** gives a table of key facts per tool, ready to paste into GitHub, Jira or Notion, and **Download JSON** saves the input, the time it was checked, the overall and per-tool status, and the facts. Both cover the tools on screen.
+Every lookup can be exported from the summary card: **Copy as Markdown** gives a table of key facts per tool, ready to paste into GitHub, Jira or Notion, and **Download JSON** saves the input, the time it was checked, the overall and per-tool status, and the facts. Both cover the tools on screen. Fact values are wrapped in inline code so a domain's TXT or RDAP text is pasted as literal text, not as a link, italics or strikethrough.
 
 Standalone tools work on pasted text, files or a password instead of the smart input:
 
@@ -39,7 +39,7 @@ It is a static site: plain HTML, CSS and JavaScript ES modules. There is no buil
 - Text, headers and files in the standalone tools (Email headers, Extract indicators, Hash & encode) are processed in the browser and never leave it.
 - File hashes and full URLs are **not** sent anywhere unless you click a reputation link.
 - Reputation links open the third-party site in a new tab, which sends the indicator to that site. Don't paste confidential URLs or internal hostnames if that matters to you.
-- Requests are made with `referrerPolicy: no-referrer` and without credentials. A Content Security Policy limits scripts to the site itself.
+- Requests are made with `referrerPolicy: no-referrer` and without credentials. A Content Security Policy limits scripts to the site itself. The page also refuses to stay inside another site's frame. `frame-ancestors` has no effect in a meta-tag policy, and `connect-src` stays `https:` because RDAP redirects to many registry hosts. A host in front of u51.org, such as Cloudflare, can send `X-Frame-Options: DENY` or a header policy with `frame-ancestors 'none'`.
 
 ## Run it locally
 
@@ -59,6 +59,7 @@ index.html          app shell (sidebar, toolbar, smart input)
 css/tokens.css      colour tokens for light and dark mode
 css/app.css         layout and components
 js/app.js           routing (#q=...&tool=...), rendering, theme switch
+js/frame-buster.js  breaks out of a parent frame (meta CSP cannot set frame-ancestors)
 js/detect.js        smart input detection and normalisation
 js/registry.js      the list of tool modules
 js/net.js           fetch with timeout and caching, DNS-over-HTTPS, RDAP helpers
@@ -136,7 +137,7 @@ Run the offline unit tests from the repo root with Node.js 22.7 or newer; no ins
 node --test "tests/*.test.mjs"
 ```
 
-These cover input detection/refanging, SPF/DMARC policies and reverse DNS. The suite fails if any test calls `fetch`.
+These cover input detection/refanging, SPF/DMARC policies, reverse DNS, Markdown export and the frame-buster. The suite fails if any test calls `fetch`.
 
 For the browser and live-service checks:
 
