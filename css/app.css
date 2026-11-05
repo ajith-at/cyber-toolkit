@@ -9,6 +9,7 @@ button, [role="button"], summary { cursor: pointer; }
 :focus-visible { outline: 2px solid var(--indigo); outline-offset: 2px; }
 .rail :focus-visible { outline-color: var(--on-indigo); }
 [hidden] { display: none !important; }
+html[data-framed] { display: none !important; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .skip { position: absolute; left: -999px; top: 8px; z-index: 50; background: var(--card); padding: .5rem 1rem; border-radius: 999px; }
 .skip:focus { left: 1rem; }

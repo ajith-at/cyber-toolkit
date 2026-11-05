@@ -19,9 +19,28 @@ export function plain(v) {
   return s || null;
 }
 
-/** Escape text for a Markdown table cell. Backslashes, pipes and markup characters are escaped. */
-export function mdCell(v) {
+/** Escape text for a Markdown heading or list line. Backslashes, pipes and markup characters are escaped. */
+function mdText(v) {
   return String(v).replace(/[\\`*[\]<>|]/g, (c) => `\\${c}`);
+}
+
+/**
+ * Table value as inline code. The fence is one backtick longer than the longest
+ * run in the value, so domain-controlled TXT or RDAP text cannot close the span
+ * and then autolink or spoof italics or strikethrough in GitHub or Slack.
+ * Pipes are escaped because GFM splits table cells before it parses code spans.
+ */
+export function mdCell(v) {
+  const s = String(v).replace(/\|/g, '\\|');
+  let longest = 0;
+  for (const run of s.match(/`+/g) || []) {
+    if (run.length > longest) longest = run.length;
+  }
+  const fence = '`'.repeat(longest + 1);
+  // A leading or trailing backtick would merge with the fence. Pad both sides;
+  // CommonMark then strips one space from each end.
+  const pad = s.startsWith('`') || s.endsWith('`') ? ' ' : '';
+  return `${fence}${pad}${s}${pad}${fence}`;
 }
 
 export function normalise(results) {
@@ -47,15 +66,15 @@ export function toJson({ input, type, overall, at = new Date(), results, include
 
 /** Markdown export: a heading and summary line, then a two-column table of key facts per tool. */
 export function toMarkdown({ input, type, overall, at = new Date(), results }) {
-  const out = [`## Cyber Toolkit: ${mdCell(input)}`, ''];
-  out.push(`- **Type:** ${mdCell(type)}`);
-  if (overall) out.push(`- **Overall:** ${mdCell(statusWord(overall.status, overall.text))}`);
+  const out = [`## Cyber Toolkit: ${mdText(input)}`, ''];
+  out.push(`- **Type:** ${mdText(type)}`);
+  if (overall) out.push(`- **Overall:** ${mdText(statusWord(overall.status, overall.text))}`);
   out.push(`- **Checked:** ${at.toISOString().replace(/\.\d+Z$/, 'Z')}`, '');
   for (const r of normalise(results)) {
-    out.push(`### ${mdCell(r.name)}`, '', `Status: ${mdCell(statusWord(r.status === 'checking' ? null : r.status, r.statusText))}`, '');
+    out.push(`### ${mdText(r.name)}`, '', `Status: ${mdText(statusWord(r.status === 'checking' ? null : r.status, r.statusText))}`, '');
     if (r.facts.length) {
       out.push('| Fact | Value |', '| --- | --- |');
-      for (const [k, v] of r.facts) out.push(`| ${mdCell(k)} | ${mdCell(v)} |`);
+      for (const [k, v] of r.facts) out.push(`| ${mdText(k)} | ${mdCell(v)} |`);
       out.push('');
     }
   }
