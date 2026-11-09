@@ -135,3 +135,22 @@ test('pure input and DNS helpers never access the network', async (t) => {
   });
   assert.equal(globalThis.fetch.mock.callCount(), 0);
 });
+
+test('InternetDB assessment (open ports and CVEs)', async () => {
+  const { assessInternetDb } = await import('../modules/open-ports.js');
+  const none = assessInternetDb(null);
+  assert.equal(none.status, 'unknown');
+  assert.equal(none.text, 'Nothing seen');
+  const clean = assessInternetDb({ ports: [443, 53], tags: ['pqc'], vulns: [], hostnames: ['dns.google'], cpes: [] });
+  assert.deepEqual(clean.ports, [53, 443]);
+  assert.equal(clean.status, 'unknown');
+  assert.equal(clean.text, 'No CVEs listed');
+  const vuln = assessInternetDb({ ports: [22, 80, 99999, 'x'], vulns: ['CVE-2014-0226', 'cve-2024-38475', 'CVE-2024-38475', 'not-a-cve'], tags: [] });
+  assert.deepEqual(vuln.ports, [22, 80]);
+  assert.deepEqual(vuln.vulns, ['CVE-2024-38475', 'CVE-2014-0226']);
+  assert.equal(vuln.status, 'caution');
+  assert.equal(vuln.text, '2 CVEs');
+  const eol = assessInternetDb({ ports: [80], vulns: [], tags: ['eol-product'] });
+  assert.equal(eol.status, 'caution');
+  assert.equal(eol.text, 'Tagged eol-product');
+});
