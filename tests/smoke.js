@@ -8,9 +8,9 @@ const path = require('path');
 const shotDir = path.join(__dirname, '..', 'screenshots');
 
 const SAMPLES = [
-  { q: '8.8.8.8', expect: ['ip-lookup', 'reputation'], text: ['Google'] },
-  { q: '1.1.1.1', expect: ['ip-lookup', 'reputation'], text: ['APNIC'] },
-  { q: '2606:4700:4700::1111', expect: ['ip-lookup', 'reputation'], text: ['Cloudflare'] },
+  { q: '8.8.8.8', expect: ['ip-lookup', 'open-ports', 'reputation'], text: ['Google'] },
+  { q: '1.1.1.1', expect: ['ip-lookup', 'open-ports', 'reputation'], text: ['APNIC'] },
+  { q: '2606:4700:4700::1111', expect: ['ip-lookup', 'open-ports', 'reputation'], text: ['Cloudflare', 'only covers IPv4'] },
   { q: 'example.com', expect: ['domain-lookup', 'dns-email', 'certificates', 'reputation'], text: ['Domain age'] },
   { q: 'google.com', expect: ['domain-lookup', 'dns-email', 'certificates', 'reputation'], text: ['MarkMonitor'] },
   { q: 'https://www.google.com/search?q=test', expect: ['domain-lookup', 'dns-email', 'certificates', 'reputation'], text: ['google.com'] },

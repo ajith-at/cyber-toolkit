@@ -62,8 +62,8 @@ const shotDir = path.join(__dirname, '..', 'docs', 'screenshots');
 
   const CASES = [
     { q: 'example.com', tools: ['Domain lookup', 'DNS & email security', 'Certificates', 'Reputation'], facts: ['Registrar', 'Email security grade', 'VirusTotal (domain)'] },
-    { q: '8.8.8.8', tools: ['IP lookup', 'Reputation'], facts: ['Owner', 'Google', 'AbuseIPDB (ip address)'] },
-    { q: '192.168.1.1', tools: ['IP lookup', 'Reputation'], facts: ['Scope', 'private'] },
+    { q: '8.8.8.8', tools: ['IP lookup', 'Open ports & CVEs', 'Reputation'], facts: ['Owner', 'Google', 'Open ports', 'AbuseIPDB (ip address)'] },
+    { q: '192.168.1.1', tools: ['IP lookup', 'Open ports & CVEs', 'Reputation'], facts: ['Scope', 'private'] },
     { q: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', tools: ['Reputation'], facts: ['MalwareBazaar'] },
   ];
   for (const c of CASES) {

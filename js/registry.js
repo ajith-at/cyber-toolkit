@@ -17,6 +17,7 @@
 //   panel(body, { go })  build the tool UI once into body; go(value, toolId) opens a lookup in another tool
 
 import ipLookup from '../modules/ip-lookup.js';
+import openPorts from '../modules/open-ports.js';
 import domainLookup from '../modules/domain-lookup.js';
 import dnsEmail from '../modules/dns-email.js';
 import certificates from '../modules/certificates.js';
@@ -28,6 +29,7 @@ import iocExtract from '../modules/ioc-extract.js';
 
 export const MODULES = [
   ipLookup,
+  openPorts,
   domainLookup,
   dnsEmail,
   certificates,
