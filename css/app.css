@@ -110,6 +110,9 @@ html[data-framed] { display: none !important; }
 .pill-rose { background: var(--rose-soft); color: var(--rose); }
 .pill-row { display: flex; flex-wrap: wrap; gap: .375rem; }
 .chip-cloud { display: flex; flex-wrap: wrap; gap: .375rem; }
+.cve-item { display: inline-flex; align-items: center; gap: .375rem; padding: .125rem .5rem; border-radius: 999px; background: var(--soft); }
+.cve-item .epss { font-size: .75rem; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; }
+.cve-item.cve-hot .epss { color: var(--ink); }
 
 /* buttons */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 44px; padding: 0 1.125rem; border-radius: 999px; border: 0; font-weight: 600; text-decoration: none; transition: box-shadow .18s ease-out, background-color .15s ease-out; }
