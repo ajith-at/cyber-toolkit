@@ -154,3 +154,31 @@ test('InternetDB assessment (open ports and CVEs)', async () => {
   assert.equal(eol.status, 'caution');
   assert.equal(eol.text, 'Tagged eol-product');
 });
+
+test('EPSS ranking for InternetDB CVEs', async () => {
+  const { epssScores, rankByEpss, fmtPct } = await import('../modules/open-ports.js');
+  const saved = globalThis.fetch;
+  const urls = [];
+  globalThis.fetch = async (u) => { urls.push(String(u)); return new Response(JSON.stringify({ data: [
+    { cve: 'CVE-2024-38475', epss: '0.943', percentile: '0.999', date: '2026-11-12' },
+    { cve: 'CVE-2014-0226', epss: '0.02', percentile: '0.8', date: '2026-11-12' },
+    { cve: 'bogus', epss: '0.9' }, { cve: 'CVE-2020-0001', epss: '7' },
+  ] }), { status: 200 }); };
+  try {
+    const cves = Array.from({ length: 150 }, (_, i) => `CVE-2020-${1000 + i}`).concat(['CVE-2024-38475', 'CVE-2014-0226']);
+    const scores = await epssScores(cves);
+    assert.equal(urls.length, 2, 'batched into 100 per call');
+    assert.ok(urls[0].startsWith('https://api.first.org/data/v1/epss?cve=CVE-2020-1000,'));
+    assert.equal(scores.size, 2);
+    const r = rankByEpss(['CVE-2025-1', 'CVE-2014-0226', 'CVE-2024-38475'], scores);
+    assert.deepEqual(r.order, ['CVE-2024-38475', 'CVE-2014-0226', 'CVE-2025-1']);
+    assert.equal(r.top.cve, 'CVE-2024-38475');
+    assert.equal(r.date, '2026-11-12');
+    assert.deepEqual(r.high, ['CVE-2024-38475']);
+    assert.equal(fmtPct(0.943), '94.3%');
+    assert.equal(fmtPct(0.0123), '1.23%');
+    assert.equal(fmtPct(0.00001), '<0.1%');
+    globalThis.fetch = async () => new Response('busy', { status: 503 });
+    await assert.rejects(epssScores(['CVE-2024-38475']), /HTTP 503/);
+  } finally { globalThis.fetch = saved; }
+});

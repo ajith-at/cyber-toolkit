@@ -5,7 +5,7 @@
 A small, modular, open-source toolkit for quick security lookups that runs entirely in your browser. Paste an IP address, domain, URL, email address or file hash. It works out what you pasted and runs every tool that applies:
 
 - **IP lookup**: owner, network range, country and abuse contact (RDAP), plus reverse DNS.
-- **Open ports & CVEs**: open ports, detected software, tags and known CVEs Shodan has seen on a public IPv4 address (Shodan InternetDB, no key). CVEs are matched from software versions, so treat them as leads to check.
+- **Open ports & CVEs**: open ports, detected software, tags and known CVEs Shodan has seen on a public IPv4 address (Shodan InternetDB, no key). CVEs are matched from software versions, so treat them as leads to check. CVEs are ranked by FIRST EPSS exploit likelihood (no key), and the status turns High when one scores 50% or more.
 - **Domain lookup**: registrar, created and expiry dates, domain age (flagged when under 90 days), nameservers, registry status and DNSSEC.
 - **DNS & email security**: A, AAAA, MX, NS and TXT records, with SPF and DMARC analysis and an A–F grade.
 - **Certificates**: current TLS certificates from Certificate Transparency logs, and the subdomains they reveal.
@@ -36,6 +36,7 @@ It is a static site: plain HTML, CSS and JavaScript ES modules. There is no buil
   | [SSLMate Cert Spotter](https://sslmate.com/certspotter/api/) (`api.certspotter.com`) | Certificate Transparency | The registered domain |
   | [Have I Been Pwned Pwned Passwords](https://haveibeenpwned.com/API/v3#PwnedPasswords) (`api.pwnedpasswords.com`) | Password breach check | The first 5 hex characters of the password's SHA-1 hash, never the password |
   | [Shodan InternetDB](https://internetdb.shodan.io) (`internetdb.shodan.io`), free for non-commercial use | Open ports, detected software, tags and known CVEs for public IPv4 addresses | The IPv4 address (never private, reserved or IPv6 addresses) |
+  | [FIRST EPSS](https://www.first.org/epss/) (`api.first.org`), free | Exploit likelihood scores for the CVEs InternetDB lists | CVE IDs only, never the IP address |
   | [Google Fonts](https://fonts.google.com) | The Plus Jakarta Sans font | A normal font request (no indicator) |
 
 - Text, headers and files in the standalone tools (Email headers, Extract indicators, Hash & encode) are processed in the browser and never leave it.
