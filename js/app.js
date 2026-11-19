@@ -5,7 +5,7 @@ import { el, pill, callout, mono, worst, loading, iconEl, errorCallout, copyButt
 import { toMarkdown, toJson, fileName } from './export.js';
 
 const SAMPLES = ['8.8.8.8', '1.1.1.1', 'example.com', 'google.com', 'security@google.com',
-  'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'];
+  'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', 'CVE-2021-44228'];
 
 const $ = (s) => document.querySelector(s);
 const state = { raw: '', q: null, tool: 'all' };
@@ -100,7 +100,7 @@ function render() {
 
   if (state.tool !== 'all' && !shown.length) {
     const m = MODULES.find((x) => x.id === state.tool);
-    out.append(callout('unknown', `${m.name} does not apply to a ${TYPE_LABEL[q.type].toLowerCase()}`, `It works with: ${m.accepts.map((a) => ({ ip: 'IP addresses', domain: 'domains (also from links and emails)', url: 'links', hash: 'file hashes' })[a]).join(', ')}.`,
+    out.append(callout('unknown', `${m.name} does not apply to a ${TYPE_LABEL[q.type].toLowerCase()}`, `It works with: ${m.accepts.map((a) => ({ ip: 'IP addresses', domain: 'domains (also from links and emails)', url: 'links', hash: 'file hashes', cve: 'CVE IDs' })[a]).join(', ')}.`,
       el('div', { class: 'link-row' }, el('button', { type: 'button', class: 'btn btn-secondary', onclick: () => go(state.raw, 'all') }, 'Show all results'))));
   }
 
@@ -140,7 +140,7 @@ function summaryCard(q, mods, shown = mods) {
   const node = el('section', { class: 'card summary', 'aria-label': 'Input summary' },
     el('div', { class: 'summary-main' },
       el('div', { class: 'summary-id' },
-        el('span', { class: 'type-badge' }, iconEl({ ip: 'server', domain: 'globe', url: 'link', email: 'at-sign', hash: 'fingerprint' }[q.type], 18), TYPE_LABEL[q.type]),
+        el('span', { class: 'type-badge' }, iconEl({ ip: 'server', domain: 'globe', url: 'link', email: 'at-sign', hash: 'fingerprint', cve: 'triangle-alert' }[q.type], 18), TYPE_LABEL[q.type]),
         el('p', { class: 'summary-value mono' }, q.display),
         q.hashType ? el('p', { class: 'caption' }, `${q.hashType} hash`) : null,
         q.type === 'url' || q.type === 'email' ? el('p', { class: 'caption' }, 'Checking host ', mono(q.ip || q.domain)) : null,
@@ -218,7 +218,7 @@ function home() {
       el('div', { class: 'tool-top' }, el('span', { class: 'module-icon' }, iconEl(m.icon, 20)), el('h3', {}, m.name)),
       el('p', { class: 'caption' }, m.summary),
       el('div', { class: 'tool-foot' },
-        el('div', { class: 'pill-row' }, (m.inputs || m.accepts.map((a) => ({ ip: 'IP', domain: 'Domain', url: 'URL', hash: 'Hash' })[a])).map((a) => el('span', { class: 'chip-static' }, a))),
+        el('div', { class: 'pill-row' }, (m.inputs || m.accepts.map((a) => ({ ip: 'IP', domain: 'Domain', url: 'URL', hash: 'Hash', cve: 'CVE' })[a])).map((a) => el('span', { class: 'chip-static' }, a))),
         m.panel ? el('a', { href: `#tool=${m.id}`, class: 'ext' }, 'Open', iconEl('arrow-right', 14)) : null)))));
 }
 

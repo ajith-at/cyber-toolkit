@@ -18,6 +18,7 @@ const SAMPLES = [
   { q: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', expect: ['reputation'], text: ['MalwareBazaar'] },
   { q: 'hxxps://example[.]com/login', expect: ['domain-lookup', 'reputation'], text: ['Defanged'] },
   { q: '192.168.1.1', expect: ['ip-lookup'], text: ['private'] },
+  { q: 'cve-2021-44228', expect: ['cve-lookup'], text: ['Log4j', 'Known exploited'] },
 ];
 const BAD = ['hello world', '256.1.1.1', 'abc123', 'javascript:alert(1)', '<img src=x onerror=alert(1)>'];
 

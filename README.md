@@ -6,6 +6,7 @@ A small, modular, open-source toolkit for quick security lookups that runs entir
 
 - **IP lookup**: owner, network range, country and abuse contact (RDAP), plus reverse DNS.
 - **Open ports & CVEs**: open ports, detected software, tags and known CVEs Shodan has seen on a public IPv4 address (Shodan InternetDB, no key). CVEs are matched from software versions, so treat them as leads to check. CVEs are ranked by FIRST EPSS exploit likelihood (no key), and the status turns High when one scores 50% or more.
+- **CVE lookup**: paste a CVE ID (e.g. `CVE-2021-44228`) for its description, CVSS score, weakness (CWE), affected products and top references from CIRCL Vulnerability-Lookup (no key), plus CISA known-exploited (KEV) status from the record's CISA Vulnrichment data and FIRST EPSS exploit likelihood. Rejected, reserved and unknown IDs get a clear message and an NVD link. Each CVE in Open ports & CVEs links straight here.
 - **Domain lookup**: registrar, created and expiry dates, domain age (flagged when under 90 days), nameservers, registry status and DNSSEC.
 - **DNS & email security**: A, AAAA, MX, NS and TXT records, with SPF and DMARC analysis and an A–F grade.
 - **Certificates**: current TLS certificates from Certificate Transparency logs, and the subdomains they reveal.
@@ -36,7 +37,8 @@ It is a static site: plain HTML, CSS and JavaScript ES modules. There is no buil
   | [SSLMate Cert Spotter](https://sslmate.com/certspotter/api/) (`api.certspotter.com`) | Certificate Transparency | The registered domain |
   | [Have I Been Pwned Pwned Passwords](https://haveibeenpwned.com/API/v3#PwnedPasswords) (`api.pwnedpasswords.com`) | Password breach check | The first 5 hex characters of the password's SHA-1 hash, never the password |
   | [Shodan InternetDB](https://internetdb.shodan.io) (`internetdb.shodan.io`), free for non-commercial use | Open ports, detected software, tags and known CVEs for public IPv4 addresses | The IPv4 address (never private, reserved or IPv6 addresses) |
-  | [FIRST EPSS](https://www.first.org/epss/) (`api.first.org`), free | Exploit likelihood scores for the CVEs InternetDB lists | CVE IDs only, never the IP address |
+  | [FIRST EPSS](https://www.first.org/epss/) (`api.first.org`), free | Exploit likelihood scores for the CVEs InternetDB lists, and for CVE lookup | CVE IDs only, never the IP address |
+  | [CIRCL Vulnerability-Lookup](https://vulnerability.circl.lu) (`vulnerability.circl.lu`), free | CVE lookup: the CVE record, CVSS, CWE, affected products, references and CISA KEV status | The CVE ID only |
   | [Google Fonts](https://fonts.google.com) | The Plus Jakarta Sans font | A normal font request (no indicator) |
 
 - Text, headers and files in the standalone tools (Email headers, Extract indicators, Hash & encode) are processed in the browser and never leave it.
@@ -151,6 +153,7 @@ node tests/smoke.js               # or: node tests/smoke.js https://u51.org/tool
 node tests/smoke.js --shots       # also writes screenshots/
 node tests/breach-check.js        # Password breach check: only a 5-character prefix is sent, nothing stored
 node tests/encoding.js            # Hash & encode: known-answer tests, UI and no-network check
+node tests/cve-lookup.js          # CVE lookup: mocked KEV / rejected / not found / errors, live check, light, dark and mobile
 node tests/email-headers.js       # Email headers: Gmail, Microsoft 365 and spoofed samples (tests/fixtures/)
 node tests/ioc-extract.js         # Extract indicators: normal, defanged and tricky fixtures, defang/refang round trips, copy, UI
 node tests/export.js              # Copy as Markdown / Download JSON: unit checks, clipboard text, downloaded file, light, dark, mobile

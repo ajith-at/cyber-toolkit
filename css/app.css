@@ -113,6 +113,10 @@ html[data-framed] { display: none !important; }
 .cve-item { display: inline-flex; align-items: center; gap: .375rem; padding: .125rem .5rem; border-radius: 999px; background: var(--soft); }
 .cve-item .epss { font-size: .75rem; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; }
 .cve-item.cve-hot .epss { color: var(--ink); }
+.cve-item .cve-open { display: inline-flex; align-items: center; justify-content: center; width: 1.5rem; height: 1.5rem; margin: -.125rem -.375rem -.125rem 0; border-radius: 999px; color: var(--indigo); }
+.cve-item .cve-open:hover, .cve-item .cve-open:focus-visible { background: var(--card, transparent); }
+.cve-desc { margin: .5rem 0 0; line-height: 1.6; overflow-wrap: anywhere; }
+.ref-list li { overflow-wrap: anywhere; margin: .125rem 0; }
 
 /* buttons */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 44px; padding: 0 1.125rem; border-radius: 999px; border: 0; font-weight: 600; text-decoration: none; transition: box-shadow .18s ease-out, background-color .15s ease-out; }
