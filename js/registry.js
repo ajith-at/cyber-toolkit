@@ -4,7 +4,7 @@
 //   id       unique slug, used in the URL (#q=...&tool=<id>)
 //   name     sidebar label
 //   icon     a key from js/icons.js (Lucide outline icon)
-//   accepts  which targets it understands: 'ip' | 'domain' | 'url' | 'hash'
+//   accepts  which targets it understands: 'ip' | 'domain' | 'url' | 'hash' | 'cve'
 //            (a URL also yields its host's ip/domain; an email yields its domain)
 //   summary  one line for the home screen
 //   source   data source caption shown on the result section
@@ -18,6 +18,7 @@
 
 import ipLookup from '../modules/ip-lookup.js';
 import openPorts from '../modules/open-ports.js';
+import cveLookup from '../modules/cve-lookup.js';
 import domainLookup from '../modules/domain-lookup.js';
 import dnsEmail from '../modules/dns-email.js';
 import certificates from '../modules/certificates.js';
@@ -30,6 +31,7 @@ import iocExtract from '../modules/ioc-extract.js';
 export const MODULES = [
   ipLookup,
   openPorts,
+  cveLookup,
   domainLookup,
   dnsEmail,
   certificates,
@@ -47,6 +49,7 @@ export function targetsOf(q) {
   if (q.domain) t.add('domain');
   if (q.type === 'url') t.add('url');
   if (q.type === 'hash') t.add('hash');
+  if (q.type === 'cve') t.add('cve');
   return t;
 }
 

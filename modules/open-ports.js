@@ -1,7 +1,7 @@
 // Open ports and known CVEs: Shodan InternetDB (internetdb.shodan.io). No key; sends Access-Control-Allow-Origin: *.
 // IPv4 only. A 404 {"detail":"No information available"} means Shodan has not seen the IP, which is not an error.
 // CVEs are then ranked by FIRST EPSS (api.first.org, no key, CORS open). Only CVE IDs are sent there, never the IP.
-import { el, factCard, factGrid, detailsTable, rawJson, callout, extLink, list, fmtNum } from '../js/ui.js';
+import { el, iconEl, factCard, factGrid, detailsTable, rawJson, callout, extLink, list, fmtNum } from '../js/ui.js';
 import { ipScope, isIPv4 } from '../js/detect.js';
 import { NetError } from '../js/net.js';
 
@@ -85,12 +85,13 @@ export function rankByEpss(vulns, scores) {
 export const fmtPct = (p) => (p >= 0.1 ? (p * 100).toFixed(1) : p >= 0.001 ? (p * 100).toFixed(2) : '<0.1') + '%';
 
 const chips = (items, monoItems = true) => (items.length ? el('div', { class: 'chip-cloud' }, items.map((s) => el('span', { class: `chip-static${monoItems ? ' mono' : ''}` }, s))) : null);
+// Each CVE: NVD link, an in-app CVE lookup link, and the EPSS score when known.
 const nvd = (c, scores) => {
-  const link = extLink(`https://nvd.nist.gov/vuln/detail/${encodeURIComponent(c)}`, c);
   const s = scores?.get(c);
-  if (!s) return link;
-  return el('span', { class: `cve-item${s.epss >= EPSS_HIGH ? ' cve-hot' : ''}` }, link,
-    el('span', { class: 'epss', title: `EPSS ${s.epss}${s.percentile != null ? `, percentile ${s.percentile}` : ''}` }, fmtPct(s.epss)));
+  return el('span', { class: `cve-item${s && s.epss >= EPSS_HIGH ? ' cve-hot' : ''}` },
+    extLink(`https://nvd.nist.gov/vuln/detail/${encodeURIComponent(c)}`, c),
+    s ? el('span', { class: 'epss', title: `EPSS ${s.epss}${s.percentile != null ? `, percentile ${s.percentile}` : ''}` }, fmtPct(s.epss)) : null,
+    el('a', { href: `#${new URLSearchParams({ q: c, tool: 'cve-lookup' })}`, class: 'cve-open', title: `Look up ${c} in the toolkit`, 'aria-label': `Look up ${c} in the toolkit` }, iconEl('arrow-right', 14)));
 };
 
 export default {

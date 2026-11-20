@@ -33,7 +33,7 @@ const FOUND = { ip: '45.33.32.156', ports: [22, 80, 123, 9929], hostnames: ['sca
     await page.waitForFunction(() => document.querySelector('#mod-open-ports').getAttribute('aria-busy') !== 'true', null, { timeout: 30000 });
     return page.evaluate(() => {
       const s = document.querySelector('#mod-open-ports');
-      return { status: s.querySelector('.section-status .pill')?.dataset.status, pill: s.querySelector('.section-status').textContent.trim(), text: s.innerText, first: s.querySelector('.cve-list a')?.textContent.trim(), cves: s.querySelectorAll('.cve-list a').length, ext: [...s.querySelectorAll('.cve-list a')].every((a) => a.target === '_blank' && /noopener/.test(a.rel) && a.href.startsWith('https://nvd.nist.gov/vuln/detail/CVE-')) };
+      return { status: s.querySelector('.section-status .pill')?.dataset.status, pill: s.querySelector('.section-status').textContent.trim(), text: s.innerText, first: s.querySelector('.cve-list a.ext')?.textContent.trim(), cves: s.querySelectorAll('.cve-list a.ext').length, inApp: s.querySelectorAll('.cve-list a.cve-open').length, ext: [...s.querySelectorAll('.cve-list a.ext')].every((a) => a.target === '_blank' && /noopener/.test(a.rel) && a.href.startsWith('https://nvd.nist.gov/vuln/detail/CVE-')) };
     });
   }
 
@@ -60,7 +60,7 @@ const FOUND = { ip: '45.33.32.156', ports: [22, 80, 123, 9929], hostnames: ['sca
   console.log('ok: EPSS outage falls back to newest-first list');
   epss = () => ({ status: 200, headers: CORS, body: epssBody(true) });
   for (const t of ['9929', 'scanme.nmap.org', 'eol-product', 'apache:http_server', 'Show 6 more']) if (!r.text.includes(t)) fail(`found: missing "${t}"`);
-  if (r.cves !== 30 || !r.ext) fail(`found: ${r.cves} CVE links, safe external links ${r.ext}`);
+  if (r.cves !== 30 || !r.ext || r.inApp !== 30) fail(`found: ${r.cves} CVE links, safe external links ${r.ext}, in-app ${r.inApp}`);
   if (SHOTS) await d.page.screenshot({ path: path.join(shotDir, 'open-ports-light.png'), fullPage: true });
   console.log('ok: mocked record shows ports, software, tags, hostnames and NVD-linked CVEs', r.pill);
 

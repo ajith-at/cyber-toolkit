@@ -64,10 +64,14 @@ export const HASHES = { 32: 'MD5', 40: 'SHA-1', 64: 'SHA-256' };
 
 export function detect(raw) {
   const input = (raw || '').trim();
-  if (!input) return { type: 'invalid', reason: 'Type or paste an IP address, domain, URL, email or file hash.' };
+  if (!input) return { type: 'invalid', reason: 'Type or paste an IP address, domain, URL, email, file hash or CVE ID.' };
   if (input.length > 2048) return { type: 'invalid', reason: 'That is too long to be an indicator.' };
   const s = refang(input);
   const refanged = s !== input;
+
+  // CVE ID (case-insensitive, Unicode dashes allowed)
+  const cve = /^cve[-\u2010-\u2015](\d{4})[-\u2010-\u2015](\d{4,})$/i.exec(s);
+  if (cve) { const v = `CVE-${cve[1]}-${cve[2]}`; return { type: 'cve', value: v, display: v, refanged }; }
 
   // Hash
   if (HEX.test(s) && HASHES[s.length]) {
@@ -115,7 +119,7 @@ export function detect(raw) {
   }
 
   if (HEX.test(s)) return { type: 'invalid', reason: `That looks like a hex string of ${s.length} characters. File hashes are 32 (MD5), 40 (SHA-1) or 64 (SHA-256).` };
-  return { type: 'invalid', reason: 'Not recognised. Try an IP (8.8.8.8), a domain (example.com), a URL, an email address, or an MD5/SHA-1/SHA-256 hash.' };
+  return { type: 'invalid', reason: 'Not recognised. Try an IP (8.8.8.8), a domain (example.com), a URL, an email address, an MD5/SHA-1/SHA-256 hash or a CVE ID (CVE-2021-44228).' };
 }
 
-export const TYPE_LABEL = { ip: 'IP address', domain: 'Domain', url: 'URL', email: 'Email', hash: 'File hash' };
+export const TYPE_LABEL = { ip: 'IP address', domain: 'Domain', url: 'URL', email: 'Email', hash: 'File hash', cve: 'CVE' };

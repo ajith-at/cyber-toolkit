@@ -182,3 +182,70 @@ test('EPSS ranking for InternetDB CVEs', async () => {
     await assert.rejects(epssScores(['CVE-2024-38475']), /HTTP 503/);
   } finally { globalThis.fetch = saved; }
 });
+
+test('CVE IDs are detected and normalised', () => {
+  for (const s of ['CVE-2021-44228', 'cve-2021-44228', ' Cve-2021-44228 ', 'CVE\u20112021\u201144228']) {
+    const q = detect(s);
+    assert.equal(q.type, 'cve', s);
+    assert.equal(q.value, 'CVE-2021-44228');
+  }
+  assert.equal(detect('CVE-2024-123456').value, 'CVE-2024-123456');
+  assert.notEqual(detect('CVE-2021-123').type, 'cve', 'needs at least 4 digits');
+  assert.notEqual(detect('CVE-21-44228').type, 'cve');
+});
+
+test('CVE record parsing and status (CIRCL Vulnerability-Lookup)', async () => {
+  const { parseCve, assessCve, severityOf } = await import('../modules/cve-lookup.js');
+  const { readFile } = await import('node:fs/promises');
+  const rec = JSON.parse(await readFile(new URL('./fixtures/cve-2021-44228.json', import.meta.url), 'utf8'));
+  const c = parseCve(rec);
+  assert.equal(c.id, 'CVE-2021-44228');
+  assert.equal(c.state, 'PUBLISHED');
+  assert.equal(c.assigner, 'apache');
+  assert.match(c.description, /JNDI/);
+  assert.equal(c.cvss.score, 10);
+  assert.equal(c.cvss.version, '3.1');
+  assert.equal(c.cvss.severity, 'CRITICAL');
+  assert.equal(c.textRating, 'CRITICAL');
+  assert.equal(c.kev.dateAdded, '2021-12-10');
+  assert.equal(c.exploitation, 'active');
+  assert.ok(c.cwes.some((w) => /CWE-502/.test(w)));
+  assert.deepEqual(c.affected, ['Apache Software Foundation · Apache Log4j2']);
+  assert.ok(c.refs.length > 5 && c.refs.every((r) => /^https?:/.test(r.url)));
+  assert.equal(new Set(c.refs.map((r) => r.url)).size, c.refs.length, 'references are de-duplicated');
+  assert.deepEqual(assessCve(c, null), { status: 'high', text: 'Known exploited' });
+
+  const plain = parseCve({ cveMetadata: { cveId: 'CVE-2025-0001', state: 'PUBLISHED' }, containers: { cna: {
+    descriptions: [{ lang: 'en', value: 'A bug.' }],
+    metrics: [{ cvssV3_1: { baseScore: 7.5, baseSeverity: 'HIGH' } }, { cvssV4_0: { baseScore: 8.7 } }],
+    references: [{ url: 'javascript:alert(1)' }, { url: 'https://example.com/a', tags: [] }, { url: 'https://vendor.example/adv', tags: ['vendor-advisory'] }],
+  } } });
+  assert.equal(plain.cvss.version, '4.0', 'newest CVSS version wins');
+  assert.equal(plain.cvss.severity, 'HIGH', 'severity derived from score when missing');
+  assert.deepEqual(plain.refs.map((r) => r.url), ['https://vendor.example/adv', 'https://example.com/a'], 'unsafe links dropped, advisories first');
+  assert.equal(plain.kev, null);
+  assert.deepEqual(assessCve(plain, null), { status: 'caution', text: 'CVSS 8.7' });
+  assert.deepEqual(assessCve(plain, { epss: 0.62 }), { status: 'high', text: 'EPSS 62.0%' });
+  assert.deepEqual(assessCve(parseCve({ cveMetadata: { cveId: 'CVE-2025-0002', state: 'PUBLISHED' }, containers: { cna: {} } }), null), { status: 'unknown', text: 'Not scored' });
+
+  const rej = parseCve({ cveMetadata: { cveId: 'CVE-2023-9999', state: 'REJECTED' }, containers: { cna: { rejectedReasons: [{ lang: 'en', value: 'Duplicate of CVE-2023-1.' }] } } });
+  assert.equal(rej.rejectedReason, 'Duplicate of CVE-2023-1.');
+  assert.equal(assessCve(rej, null).text, 'Rejected');
+  assert.equal(severityOf(9.8), 'CRITICAL');
+  assert.equal(severityOf(4), 'MEDIUM');
+});
+
+test('CVE lookup treats an empty answer as not found', async () => {
+  const { cveRecord } = await import('../modules/cve-lookup.js');
+  const saved = globalThis.fetch;
+  const urls = [];
+  try {
+    globalThis.fetch = async (u) => { urls.push(String(u)); return new Response('{}', { status: 200 }); };
+    assert.equal(await cveRecord('CVE-2099-99999'), null);
+    assert.equal(urls[0], 'https://vulnerability.circl.lu/api/vulnerability/CVE-2099-99999');
+    globalThis.fetch = async () => new Response('nope', { status: 404 });
+    assert.equal(await cveRecord('CVE-2099-99999'), null);
+    globalThis.fetch = async () => new Response('busy', { status: 502 });
+    await assert.rejects(cveRecord('CVE-2021-44228'), /HTTP 502/);
+  } finally { globalThis.fetch = saved; }
+});
