@@ -8,7 +8,7 @@ A small, modular, open-source toolkit for quick security lookups that runs entir
 - **Open ports & CVEs**: open ports, detected software, tags and known CVEs Shodan has seen on a public IPv4 address (Shodan InternetDB, no key). CVEs are matched from software versions, so treat them as leads to check. CVEs are ranked by FIRST EPSS exploit likelihood (no key), and the status turns High when one scores 50% or more.
 - **CVE lookup**: paste a CVE ID (e.g. `CVE-2021-44228`) for its description, CVSS score, weakness (CWE), affected products and top references from CIRCL Vulnerability-Lookup (no key), plus CISA known-exploited (KEV) status from the record's CISA Vulnrichment data and FIRST EPSS exploit likelihood. Rejected, reserved and unknown IDs get a clear message and an NVD link. Each CVE in Open ports & CVEs links straight here.
 - **Domain lookup**: registrar, created and expiry dates, domain age (flagged when under 90 days), nameservers, registry status and DNSSEC.
-- **DNS & email security**: A, AAAA, MX, NS and TXT records, with SPF and DMARC analysis and an A–F grade.
+- **DNS & email security**: A, AAAA, MX, NS and TXT records, with SPF and DMARC analysis and an A–F grade. Also checks the newer mail protections: MTA-STS (with a link to the policy file), TLS-RPT, BIMI (logo and mark certificate) and a best-effort probe of 8 common DKIM selectors. MTA-STS plus TLS-RPT adds a bonus "+" to the grade; missing them never lowers it.
 - **Certificates**: current TLS certificates from Certificate Transparency logs, and the subdomains they reveal.
 - **Reputation**: one-click links to VirusTotal, AbuseIPDB, Shodan, URLScan, Cisco Talos, AlienVault OTX and MalwareBazaar.
 
@@ -33,7 +33,7 @@ It is a static site: plain HTML, CSS and JavaScript ES modules. There is no buil
   | Service | Used for | What it receives |
   | --- | --- | --- |
   | [rdap.org](https://rdap.org) → the regional internet registry or domain registry it redirects to (e.g. ARIN, APNIC, RIPE, Verisign) | IP and domain registration data | The IP or domain |
-  | [Google Public DNS](https://developers.google.com/speed/public-dns/docs/doh/json) (`dns.google`), with [Cloudflare DNS](https://developers.cloudflare.com/1.1.1.1/encryption/dns-over-https/) as a fallback | DNS records, reverse DNS, SPF and DMARC | The domain, or the reverse name of the IP |
+  | [Google Public DNS](https://developers.google.com/speed/public-dns/docs/doh/json) (`dns.google`), with [Cloudflare DNS](https://developers.cloudflare.com/1.1.1.1/encryption/dns-over-https/) as a fallback | DNS records, reverse DNS, SPF, DMARC, MTA-STS, TLS-RPT, BIMI and DKIM | The domain, or the reverse name of the IP |
   | [SSLMate Cert Spotter](https://sslmate.com/certspotter/api/) (`api.certspotter.com`) | Certificate Transparency | The registered domain |
   | [Have I Been Pwned Pwned Passwords](https://haveibeenpwned.com/API/v3#PwnedPasswords) (`api.pwnedpasswords.com`) | Password breach check | The first 5 hex characters of the password's SHA-1 hash, never the password |
   | [Shodan InternetDB](https://internetdb.shodan.io) (`internetdb.shodan.io`), free for non-commercial use | Open ports, detected software, tags and known CVEs for public IPv4 addresses | The IPv4 address (never private, reserved or IPv6 addresses) |
@@ -142,7 +142,7 @@ Run the offline unit tests from the repo root with Node.js 22.7 or newer; no ins
 node --test "tests/*.test.mjs"
 ```
 
-These cover input detection/refanging, SPF/DMARC policies, reverse DNS, Markdown export and the frame-buster. The suite fails if any test calls `fetch`.
+These cover input detection/refanging, SPF/DMARC policies, MTA-STS/TLS-RPT/BIMI/DKIM parsing and the bonus grade, reverse DNS, Markdown export and the frame-buster. The suite fails if any test calls `fetch`.
 
 For the browser and live-service checks:
 
@@ -154,6 +154,7 @@ node tests/smoke.js --shots       # also writes screenshots/
 node tests/breach-check.js        # Password breach check: only a 5-character prefix is sent, nothing stored
 node tests/encoding.js            # Hash & encode: known-answer tests, UI and no-network check
 node tests/cve-lookup.js          # CVE lookup: mocked KEV / rejected / not found / errors, live check, light, dark and mobile
+node tests/dns-email.js           # DNS & email security: mocked MTA-STS / TLS-RPT / BIMI / DKIM, outage, export, live google.com and example.com, light, dark, mobile
 node tests/email-headers.js       # Email headers: Gmail, Microsoft 365 and spoofed samples (tests/fixtures/)
 node tests/ioc-extract.js         # Extract indicators: normal, defanged and tricky fixtures, defang/refang round trips, copy, UI
 node tests/export.js              # Copy as Markdown / Download JSON: unit checks, clipboard text, downloaded file, light, dark, mobile

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { detect, refang } from '../js/detect.js';
 import { reverseName } from '../js/net.js';
-import { analyseSpf, analyseDmarc } from '../modules/dns-email.js';
+import { analyseSpf, analyseDmarc, analyseMtaSts, analyseTlsRpt, analyseBimi, analyseDkim, withBonus, DKIM_SELECTORS } from '../modules/dns-email.js';
 
 test('pure input and DNS helpers never access the network', async (t) => {
   t.mock.method(globalThis, 'fetch', () => { throw new Error('Unexpected network request'); });
@@ -248,4 +248,58 @@ test('CVE lookup treats an empty answer as not found', async () => {
     globalThis.fetch = async () => new Response('busy', { status: 502 });
     await assert.rejects(cveRecord('CVE-2021-44228'), /HTTP 502/);
   } finally { globalThis.fetch = saved; }
+});
+
+test('Newer mail protections: MTA-STS, TLS-RPT, BIMI, DKIM and the bonus grade', (t) => {
+  t.mock.method(globalThis, 'fetch', () => { throw new Error('Unexpected network request'); });
+
+  // MTA-STS
+  assert.equal(analyseMtaSts([], 'example.com').word, 'Missing');
+  assert.equal(analyseMtaSts([], 'example.com').status, 'unknown');
+  const m = analyseMtaSts(['v=STSv1; id=20210803T010101;'], 'google.com');
+  assert.equal(m.present, true);
+  assert.equal(m.id, '20210803T010101');
+  assert.equal(m.policyUrl, 'https://mta-sts.google.com/.well-known/mta-sts.txt');
+  assert.equal(analyseMtaSts(['v=STSv1;'], 'x.com').word, 'Invalid');
+  assert.equal(analyseMtaSts(['v=STSv1; id=1', 'v=STSv1; id=2'], 'x.com').word, 'Invalid');
+
+  // TLS-RPT
+  assert.equal(analyseTlsRpt(['v=spf1 -all']).word, 'Missing');
+  const r = analyseTlsRpt(['v=TLSRPTv1;rua=mailto:sts-reports@google.com']);
+  assert.equal(r.present, true);
+  assert.equal(r.rua, 'mailto:sts-reports@google.com');
+  assert.equal(analyseTlsRpt(['v=TLSRPTv1;']).word, 'Invalid');
+
+  // BIMI
+  assert.equal(analyseBimi([]).word, 'Missing');
+  assert.equal(analyseBimi(['v=BIMI1; l=; a=; lps=x']).word, 'Declined');
+  const b = analyseBimi(['v=BIMI1; l=https://example.com/logo.svg; a=https://example.com/vmc.pem']);
+  assert.equal(b.present, true);
+  assert.equal(b.logo, 'https://example.com/logo.svg');
+  assert.match(b.note, /mark certificate/);
+  const noCert = analyseBimi(['v=BIMI1; l=https://example.com/logo.svg']);
+  assert.equal(noCert.cert, null);
+  assert.match(noCert.note, /no mark certificate/);
+  assert.equal(analyseBimi(['v=BIMI1; l=javascript:alert(1)']).logo, null, 'unsafe logo URLs are dropped');
+
+  // DKIM
+  assert.ok(DKIM_SELECTORS.length <= 8);
+  assert.equal(analyseDkim([]).word, 'Not found');
+  const d = analyseDkim([
+    { selector: 'google', txts: [] },
+    { selector: 'selector1', txts: ['v=DKIM1; k=rsa; p=MIIBIjANBg'] },
+    { selector: 'k1', txts: ['v=DKIM1; k=ed25519; p='] },
+    { selector: 's1', txts: ['v=spf1 include:_spf.example.com ~all'] }, // wildcard TXT is ignored
+  ]);
+  assert.equal(d.word, 'Found');
+  assert.deepEqual(d.found.map((f) => [f.selector, f.keyType, f.revoked]), [['selector1', 'rsa', false], ['k1', 'ed25519', true]]);
+  assert.equal(analyseDkim([{ selector: 'k1', txts: ['v=DKIM1; p='] }]).word, 'Revoked only');
+
+  // Bonus grade: only a "+", never a downgrade
+  const yes = { present: true }; const no = { present: false };
+  assert.equal(withBonus({ g: 'A', status: 'low' }, yes, yes).g, 'A+');
+  assert.equal(withBonus({ g: 'B', status: 'caution' }, yes, yes).g, 'B+');
+  assert.equal(withBonus({ g: 'A', status: 'low' }, yes, no).g, 'A');
+  assert.equal(withBonus({ g: 'F', status: 'high' }, yes, yes).g, 'F');
+  assert.equal(withBonus({ g: 'A', status: 'low' }, { failed: true }, yes).g, 'A');
 });

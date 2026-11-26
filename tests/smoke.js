@@ -14,7 +14,7 @@ const SAMPLES = [
   { q: 'example.com', expect: ['domain-lookup', 'dns-email', 'certificates', 'reputation'], text: ['Domain age'] },
   { q: 'google.com', expect: ['domain-lookup', 'dns-email', 'certificates', 'reputation'], text: ['MarkMonitor'] },
   { q: 'https://www.google.com/search?q=test', expect: ['domain-lookup', 'dns-email', 'certificates', 'reputation'], text: ['google.com'] },
-  { q: 'security@google.com', expect: ['domain-lookup', 'dns-email', 'certificates', 'reputation'], text: ['Email security grade'] },
+  { q: 'security@google.com', expect: ['domain-lookup', 'dns-email', 'certificates', 'reputation'], text: ['Email security grade', 'Newer mail protections', 'MTA-STS'] },
   { q: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', expect: ['reputation'], text: ['MalwareBazaar'] },
   { q: 'hxxps://example[.]com/login', expect: ['domain-lookup', 'reputation'], text: ['Defanged'] },
   { q: '192.168.1.1', expect: ['ip-lookup'], text: ['private'] },
